@@ -4,298 +4,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI绘画负性评价原因探究 | 基本信息</title>
+    <title>AI绘画负性评价原因探究 | 实验说明</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        /* 针对此页面的特殊样式 */
-        .panas-question {
-            margin-bottom: 1.5rem;
-            padding: 15px;
-            background-color: var(--light-gray);
-            border-radius: 8px;
-        }
-
-        .panas-word {
-            font-weight: 500;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        @media (max-width: 768px) {
-            .panas-question .likert-scale {
-                flex-direction: row;
-                align-items: center;
-            }
-        }
-    </style>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <h1>基本信息收集</h1>
+            <h1>实验说明</h1>
             <div class="progress-bar">
-                <div class="progress" style="width: 20%"></div>
-                <span>1/5</span>
+                <div class="progress" style="width: 40%"></div>
+                <span>2/5</span>
             </div>
         </header>
 
-        <section class="form-section">
-            <form id="basic-info-form">
-                <h2>个人基本信息</h2>
+        <section class="instructions-section">
+            <h2>实验流程说明</h2>
+            <p>接下来，您将观看一系列图片并对其进行评分。整个实验分为若干组，每组包含5张图片。为确保实验效果，请专注并仔细遵循以下步骤：</p>
 
-                <div class="form-group">
-                    <label for="age">年龄:</label>
-                    <input type="number" id="age" name="age" min="18" max="99" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="gender">性别:</label>
-                    <select id="gender" name="gender" required>
-                        <option value="">请选择</option>
-                        <option value="male">男</option>
-                        <option value="female">女</option>
-                        <option value="other">其他</option>
-                        <option value="prefer_not_to_say">不愿透露</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="education">教育程度:</label>
-                    <select id="education" name="education" required>
-                        <option value="">请选择</option>
-                        <option value="high_school">高中及以下</option>
-                        <option value="college">大专</option>
-                        <option value="bachelor">本科</option>
-                        <option value="master">硕士</option>
-                        <option value="phd">博士及以上</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="occupation">职业:</label>
-                    <input type="text" id="occupation" name="occupation" required>
-                </div>
-
-                <h2>艺术背景调查</h2>
-
-                <div class="form-group">
-                    <label for="art_experience">您有多少年的艺术相关经验?</label>
-                    <select id="art_experience" name="art_experience" required>
-                        <option value="">请选择</option>
-                        <option value="none">无相关经验</option>
-                        <option value="less_than_1">不到1年</option>
-                        <option value="1_to_3">1-3年</option>
-                        <option value="3_to_5">3-5年</option>
-                        <option value="5_to_10">5-10年</option>
-                        <option value="more_than_10">10年以上</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="art_education">您是否接受过正式的艺术教育或培训?</label>
-                    <select id="art_education" name="art_education" required>
-                        <option value="">请选择</option>
-                        <option value="none">从未接受过</option>
-                        <option value="informal">非正式培训或自学</option>
-                        <option value="short_term">短期课程或工作坊</option>
-                        <option value="degree">艺术相关学位</option>
-                        <option value="professional">专业艺术教育</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="ai_attitude">您对AI生成艺术的态度如何?</label>
-                    <select id="ai_attitude" name="ai_attitude" required>
-                        <option value="">请选择</option>
-                        <option value="very_negative">非常负面</option>
-                        <option value="somewhat_negative">略微负面</option>
-                        <option value="neutral">中立</option>
-                        <option value="somewhat_positive">略微正面</option>
-                        <option value="very_positive">非常正面</option>
-                    </select>
-                </div>
-
-                <h2>情绪状态量表 (PANAS)</h2>
-                <p>请根据您当前的情绪状态，评价以下感受的强度:</p>
-
-                <!-- 修改后的PANAS量表，统一使用与其他页面一致的likert-scale样式 -->
-                <div class="panas-question">
-                    <span class="panas-word">感兴趣的</span>
-                    <div class="likert-scale">
-                        <span>很少</span>
-                        <div class="scale-options">
-                            <input type="radio" id="interested_1" name="interested" value="1" required>
-                            <label for="interested_1">1</label>
-
-                            <input type="radio" id="interested_2" name="interested" value="2">
-                            <label for="interested_2">2</label>
-
-                            <input type="radio" id="interested_3" name="interested" value="3">
-                            <label for="interested_3">3</label>
-
-                            <input type="radio" id="interested_4" name="interested" value="4">
-                            <label for="interested_4">4</label>
-
-                            <input type="radio" id="interested_5" name="interested" value="5">
-                            <label for="interested_5">5</label>
-                        </div>
-                        <span>很多</span>
+            <div class="instruction-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>注视点阶段</h3>
+                        <p>屏幕中央会显示"+"注视点，持续500毫秒，请将注意力集中于此。</p>
                     </div>
                 </div>
 
-                <div class="panas-question">
-                    <span class="panas-word">痛苦的</span>
-                    <div class="likert-scale">
-                        <span>很少</span>
-                        <div class="scale-options">
-                            <input type="radio" id="distressed_1" name="distressed" value="1" required>
-                            <label for="distressed_1">1</label>
-
-                            <input type="radio" id="distressed_2" name="distressed" value="2">
-                            <label for="distressed_2">2</label>
-
-                            <input type="radio" id="distressed_3" name="distressed" value="3">
-                            <label for="distressed_3">3</label>
-
-                            <input type="radio" id="distressed_4" name="distressed" value="4">
-                            <label for="distressed_4">4</label>
-
-                            <input type="radio" id="distressed_5" name="distressed" value="5">
-                            <label for="distressed_5">5</label>
-                        </div>
-                        <span>很多</span>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>图片展示</h3>
+                        <p>每张图片将展示10秒，请仔细观察图片内容。图片会自动切换到评分界面。</p>
                     </div>
                 </div>
 
-                <div class="panas-question">
-                    <span class="panas-word">兴奋的</span>
-                    <div class="likert-scale">
-                        <span>很少</span>
-                        <div class="scale-options">
-                            <input type="radio" id="excited_1" name="excited" value="1" required>
-                            <label for="excited_1">1</label>
-
-                            <input type="radio" id="excited_2" name="excited" value="2">
-                            <label for="excited_2">2</label>
-
-                            <input type="radio" id="excited_3" name="excited" value="3">
-                            <label for="excited_3">3</label>
-
-                            <input type="radio" id="excited_4" name="excited" value="4">
-                            <label for="excited_4">4</label>
-
-                            <input type="radio" id="excited_5" name="excited" value="5">
-                            <label for="excited_5">5</label>
-                        </div>
-                        <span>很多</span>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>评分阶段</h3>
+                        <p>您将有15秒时间完成对图片的评分，请根据您的真实感受选择评分。</p>
+                        <p>评分完成后点击确认，或等待时间结束自动提交。</p>
                     </div>
                 </div>
 
-                <div class="panas-question">
-                    <span class="panas-word">心烦的</span>
-                    <div class="likert-scale">
-                        <span>很少</span>
-                        <div class="scale-options">
-                            <input type="radio" id="upset_1" name="upset" value="1" required>
-                            <label for="upset_1">1</label>
-
-                            <input type="radio" id="upset_2" name="upset" value="2">
-                            <label for="upset_2">2</label>
-
-                            <input type="radio" id="upset_3" name="upset" value="3">
-                            <label for="upset_3">3</label>
-
-                            <input type="radio" id="upset_4" name="upset" value="4">
-                            <label for="upset_4">4</label>
-
-                            <input type="radio" id="upset_5" name="upset" value="5">
-                            <label for="upset_5">5</label>
-                        </div>
-                        <span>很多</span>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>间隔</h3>
+                        <p>评分结束后，屏幕将短暂空白2秒，随后进入下一张图片的展示。</p>
                     </div>
                 </div>
 
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">提交信息，继续实验</button>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>注意力检测</h3>
+                        <p>每组图片中会随机插入一张自然风景图片，组结束后需要回忆该图片的主要内容。</p>
+                    </div>
                 </div>
-            </form>
+            </div>
+
+            <div class="notice-box">
+                <h3>重要提示</h3>
+                <ul>
+                    <li>请在安静、不受干扰的环境中完成实验</li>
+                    <li>每张图片有固定的展示和评分时间，请合理分配时间</li>
+                    <li>请不要在实验过程中刷新页面或返回上一页</li>
+                    <li>完整参与实验至关重要，中途退出将导致数据无效</li>
+                </ul>
+            </div>
+
+            <div class="ready-check">
+                <p>您是否已经准备好开始实验？</p>
+                <button id="start-experiment" class="btn-primary">开始实验</button>
+            </div>
         </section>
 
         <footer>
-            <p>© 2025 AI绘画研究项目组 | 如有问题请联系: research@example.com</p>
+            <p>© 2025 AI绘画研究项目组 | 如遇技术问题请刷新页面</p>
         </footer>
     </div>
 
     <script src="js/main.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // 获取表单元素
-            const form = document.getElementById('basic-info-form');
-
-            // 添加表单提交事件
-            form.addEventListener('submit', function (e) {
-                e.preventDefault(); // 阻止表单默认提交
-
-                // 收集基本信息
-                const formData = new FormData(form);
-                const basicInfo = {};
-
-                // 将表单数据转换为对象
-                for (const [key, value] of formData.entries()) {
-                    basicInfo[key] = value;
-                }
-
-                // 从localStorage获取现有用户数据，如果不存在则创建新对象
-                const userData = JSON.parse(localStorage.getItem('userData')) || {};
-
-                // 保存基本信息
-                userData.basicInfo = basicInfo;
-
-                // 添加PANAS情绪评分
-                userData.emotionalState = {
-                    interested: parseInt(formData.get('interested')),
-                    distressed: parseInt(formData.get('distressed')),
-                    excited: parseInt(formData.get('excited')),
-                    upset: parseInt(formData.get('upset'))
-                    // 可以继续添加其他PANAS项目
-                };
-
-                // 保存到localStorage
-                localStorage.setItem('userData', JSON.stringify(userData));
-
-                // 跳转到实验说明页面
-                window.location.href = 'experiment.html';
-            });
-
-            // 从localStorage预填表单(如果有保存的数据)
-            try {
-                const savedData = JSON.parse(localStorage.getItem('userData'));
-                if (savedData && savedData.basicInfo) {
-                    const basicInfo = savedData.basicInfo;
-
-                    // 填充表单字段
-                    Object.keys(basicInfo).forEach(key => {
-                        const element = form.elements[key];
-                        if (element) {
-                            element.value = basicInfo[key];
-                        }
-                    });
-
-                    // 如果有情绪状态数据，填充PANAS评分
-                    if (savedData.emotionalState) {
-                        const emotions = savedData.emotionalState;
-                        Object.keys(emotions).forEach(emotion => {
-                            const radioBtn = document.getElementById(`${emotion}_${emotions[emotion]}`);
-                            if (radioBtn) {
-                                radioBtn.checked = true;
-                            }
-                        });
-                    }
-                }
-            } catch (e) {
-                console.error('加载保存的数据时出错:', e);
-            }
+        document.getElementById('start-experiment').addEventListener('click', function () {
+            // 跳转到实验页面
+            window.location.href = 'Information-Collection.html';
         });
     </script>
 </body>
