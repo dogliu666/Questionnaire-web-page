@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI绘画负性评价原因探究 | 实验说明</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>实验说明</h1>
+            <div class="progress-bar">
+                <div class="progress" style="width: 40%"></div>
+                <span>2/5</span>
+            </div>
+        </header>
+
+        <section class="instructions-section">
+            <h2>实验流程说明</h2>
+            <p>接下来，您将观看一系列图片并对其进行评分。整个实验分为若干组，每组包含5张图片。为确保实验效果，请专注并仔细遵循以下步骤：</p>
+
+            <div class="instruction-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>注视点阶段</h3>
+                        <p>屏幕中央会显示"+"注视点，持续500毫秒，请将注意力集中于此。</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>图片展示</h3>
+                        <p>每张图片将展示10秒，请仔细观察图片内容。图片会自动切换到评分界面。</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>评分阶段</h3>
+                        <p>您将有15秒时间完成对图片的评分，请根据您的真实感受选择评分。</p>
+                        <p>评分完成后点击确认，或等待时间结束自动提交。</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>间隔</h3>
+                        <p>评分结束后，屏幕将短暂空白2秒，随后进入下一张图片的展示。</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>注意力检测</h3>
+                        <p>每组图片中会随机插入一张自然风景图片，组结束后需要回忆该图片的主要内容。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notice-box">
+                <h3>重要提示</h3>
+                <ul>
+                    <li>请在安静、不受干扰的环境中完成实验</li>
+                    <li>每张图片有固定的展示和评分时间，请合理分配时间</li>
+                    <li>请不要在实验过程中刷新页面或返回上一页</li>
+                    <li>完整参与实验至关重要，中途退出将导致数据无效</li>
+                </ul>
+            </div>
+
+            <div class="ready-check">
+                <p>您是否已经准备好开始实验？</p>
+                <button id="start-experiment" class="btn-primary">开始实验</button>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2025 AI绘画研究项目组 | 如遇技术问题请刷新页面</p>
+        </footer>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.getElementById('start-experiment').addEventListener('click', function () {
+            // 跳转到实验页面
+            window.location.href = 'Information-Collection.html';
+        });
+    </script>
+</body>
+
+</html>

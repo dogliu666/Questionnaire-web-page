@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI绘画负性评价原因探究 | 实验详细说明</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>实验详细说明</h1>
+            <div class="progress-bar">
+                <div class="progress" style="width: 30%"></div>
+                <span>2/5</span>
+            </div>
+        </header>
+        
+        <section class="instructions-section">
+            <h2>关于本次实验</h2>
+            <p>在本次实验中，您将观看一系列AI生成的艺术作品，并对其进行多维度评价。实验旨在探究人们对AI绘画作品的感知机制及其可能的负面评价原因。</p>
+            
+            <div class="instruction-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>实验材料</h3>
+                        <p>实验中将展示多组图片，每组包含4张AI生成的艺术作品和1张自然风景照片（用于注意力检测）。</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>评分维度说明</h3>
+                        <p><strong>道德厌恶</strong>: 评估您对AI创作可能对人类艺术带来威胁的感受</p>
+                        <p><strong>技术缺陷感知</strong>: 评估您对作品中可能存在的不协调或错误的感知</p>
+                        <p><strong>原创性质疑</strong>: 评估您对作品创新性和独特性的判断</p>
+                        <p><strong>情感共鸣</strong>: 评估作品是否能引起您的情感反应</p>
+                        <p><strong>视觉吸引力</strong>: 评估作品在视觉上对您的吸引程度</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>注意事项</h3>
+                        <ul>
+                            <li>请凭第一印象进行评分，不需要过度思考</li>
+                            <li>请按照您真实的主观感受评价，没有正确或错误的答案</li>
+                            <li>您的数据将匿名处理并仅用于学术研究目的</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notice-box">
+                <h3>关于注意力检测</h3>
+                <p>为确保数据质量，每组图片中会包含一张自然风景照片作为注意力检测。当您看到此类图片时，请特别注意其内容，因为在该组结束后，您需要回答有关该图片的简单问题。</p>
+            </div>
+            
+            <div class="ready-check">
+                <p>如果您理解了实验说明并准备好开始，请点击下方按钮：</p>
+                <button id="continue-btn" class="btn-primary">继续</button>
+            </div>
+        </section>
+        
+        <footer>
+            <p>© 2025 AI绘画研究项目组 | 如有问题请联系: research@example.com</p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('continue-btn').addEventListener('click', function() {
+            window.location.href = 'basic-info.html';
+        });
+    </script>
+</body>
+</html>

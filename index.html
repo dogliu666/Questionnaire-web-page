@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI绘画负性评价原因探究 | 欢迎</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>AI绘画负性评价原因探究</h1>
+            <div class="subtitle">学术研究问卷</div>
+        </header>
+
+        <section class="welcome-section">
+            <h2>欢迎参与</h2>
+            <p>感谢您参与本次关于AI绘画评价的学术研究。本研究旨在探索人们对AI生成艺术作品的感知与评价机制，您的参与对推动相关领域的研究具有重要意义。</p>
+
+            <div class="process-overview">
+                <h3>实验流程</h3>
+                <ol>
+                    <li>填写基本信息与情绪量表（约5分钟）</li>
+                    <li>阅读实验说明（约1分钟）</li>
+                    <li>观看图片并完成评分（约15分钟）</li>
+                    <li>注意力检测任务</li>
+                    <li>提供最终反馈（约2分钟）</li>
+                </ol>
+            </div>
+
+            <div class="consent-section">
+                <h3>参与须知</h3>
+                <p>本实验约需25分钟完成。您的所有反馈将被匿名处理并仅用于学术研究。您可以随时退出实验，但我们希望您能完整参与以提供有效数据。</p>
+
+                <div class="consent-check">
+                    <input type="checkbox" id="consent" required>
+                    <label for="consent">我已阅读并理解上述信息，同意参与此研究</label>
+                </div>
+            </div>
+
+            <button id="start-btn" class="btn-primary" disabled>开始实验</button>
+        </section>
+
+        <footer>
+            <p>© 2025 AI绘画研究项目组 | 如有问题请联系: research@example.com</p>
+        </footer>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.getElementById('consent').addEventListener('change', function () {
+            document.getElementById('start-btn').disabled = !this.checked;
+        });
+
+        document.getElementById('start-btn').addEventListener('click', function () {
+            // 添加检测设备类型的代码
+            const deviceType = detectDeviceType();
+
+            // 从本地存储加载现有数据，如果没有则创建新对象
+            const userData = JSON.parse(localStorage.getItem('userData')) || {};
+
+            // 记录实验开始时间和设备类型
+            userData.experimentStartTime = new Date().toISOString();
+            userData.deviceType = deviceType;
+
+            // 保存到localStorage
+            localStorage.setItem('userData', JSON.stringify(userData));
+
+            // 修改跳转到基本信息页面
+            window.location.href = 'basic-info.html';
+        });
+
+
+        // 检测设备类型函数
+        function detectDeviceType() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+            // 检测是否为移动设备
+            if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase())) {
+                // 进一步区分平板和手机
+                if (/ipad|tablet|playbook|silk/i.test(userAgent.toLowerCase()) ||
+                    (window.innerWidth >= 768 && window.innerHeight >= 768)) {
+                    return 'tablet';
+                }
+                return 'mobile';
+            }
+
+            return 'desktop';
+        }
+    </script>
+</body>
+
+</html>
