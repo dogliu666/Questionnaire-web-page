@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI绘画负性评价原因探究 | 基本信息</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.ico">
     <style>
         /* 针对此页面的特殊样式 */
         .panas-question {
@@ -13,14 +15,22 @@
             background-color: var(--light-gray);
             border-radius: 8px;
         }
-        
+
         .panas-word {
             font-weight: 500;
             display: block;
             margin-bottom: 8px;
         }
+
+        @media (max-width: 768px) {
+            .panas-question .likert-scale {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -30,73 +40,64 @@
                 <span>1/5</span>
             </div>
         </header>
-        
+
         <section class="form-section">
             <form id="basic-info-form">
                 <h2>个人基本信息</h2>
-                
+
                 <div class="form-group">
                     <label for="age">年龄:</label>
-                    <input type="number" id="age" name="age" min="18" max="99" required>
+                    <select id="age" name="age" required>
+                        <option value="">请选择</option>
+                        <option value="18-30">18-30岁</option>
+                        <option value="30+">30岁以上</option>
+                    </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="gender">性别:</label>
                     <select id="gender" name="gender" required>
                         <option value="">请选择</option>
                         <option value="male">男</option>
                         <option value="female">女</option>
-                        <option value="other">其他</option>
-                        <option value="prefer_not_to_say">不愿透露</option>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="education">教育程度:</label>
                     <select id="education" name="education" required>
                         <option value="">请选择</option>
-                        <option value="high_school">高中及以下</option>
-                        <option value="college">大专</option>
-                        <option value="bachelor">本科</option>
-                        <option value="master">硕士</option>
-                        <option value="phd">博士及以上</option>
+                        <option value="high_school_or_below">高中及以下</option>
+                        <option value="college_or_bachelor">本科/专科</option>
+                        <option value="master_or_above">硕士及以上</option>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="occupation">职业:</label>
-                    <input type="text" id="occupation" name="occupation" required>
-                </div>
-                
-                <h2>艺术背景调查</h2>
-                
-                <div class="form-group">
-                    <label for="art_experience">您有多少年的艺术相关经验?</label>
-                    <select id="art_experience" name="art_experience" required>
+                    <select id="occupation" name="occupation" required>
                         <option value="">请选择</option>
-                        <option value="none">无相关经验</option>
-                        <option value="less_than_1">不到1年</option>
-                        <option value="1_to_3">1-3年</option>
-                        <option value="3_to_5">3-5年</option>
-                        <option value="5_to_10">5-10年</option>
-                        <option value="more_than_10">10年以上</option>
+                        <option value="普通学生">普通学生</option>
+                        <option value="艺术类学生">艺术类学生</option>
+                        <option value="艺术行业从业者">艺术行业从业者</option>
+                        <option value="非艺术行业从业者">非艺术行业从业者</option>
                     </select>
                 </div>
-                
+
+                <h2>艺术背景调查</h2>
+
                 <div class="form-group">
                     <label for="art_education">您是否接受过正式的艺术教育或培训?</label>
                     <select id="art_education" name="art_education" required>
                         <option value="">请选择</option>
-                        <option value="none">从未接受过</option>
-                        <option value="informal">非正式培训或自学</option>
-                        <option value="short_term">短期课程或工作坊</option>
-                        <option value="degree">艺术相关学位</option>
-                        <option value="professional">专业艺术教育</option>
+                        <option value="从未接受过">从未接受过</option>
+                        <option value="自学或短期培训">自学或短期培训</option>
+                        <option value="接受过系统的艺术教育/艺术相关学位">接受过系统的艺术教育/艺术相关学位</option>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
-                    <label for="ai_attitude">您对AI生成艺术的态度如何?</label>
+                    <label for="ai_attitude">您对AI生成艺术的态度如何?（AI音乐、AI美术、AI视频）</label>
                     <select id="ai_attitude" name="ai_attitude" required>
                         <option value="">请选择</option>
                         <option value="very_negative">非常负面</option>
@@ -106,10 +107,10 @@
                         <option value="very_positive">非常正面</option>
                     </select>
                 </div>
-                
+
                 <h2>情绪状态量表 (PANAS)</h2>
                 <p>请根据您当前的情绪状态，评价以下感受的强度:</p>
-                
+
                 <!-- 修改后的PANAS量表，统一使用与其他页面一致的likert-scale样式 -->
                 <div class="panas-question">
                     <span class="panas-word">感兴趣的</span>
@@ -134,7 +135,7 @@
                         <span>很多</span>
                     </div>
                 </div>
-                
+
                 <div class="panas-question">
                     <span class="panas-word">痛苦的</span>
                     <div class="likert-scale">
@@ -158,7 +159,7 @@
                         <span>很多</span>
                     </div>
                 </div>
-                
+
                 <div class="panas-question">
                     <span class="panas-word">兴奋的</span>
                     <div class="likert-scale">
@@ -182,7 +183,7 @@
                         <span>很多</span>
                     </div>
                 </div>
-                
+
                 <div class="panas-question">
                     <span class="panas-word">心烦的</span>
                     <div class="likert-scale">
@@ -206,13 +207,13 @@
                         <span>很多</span>
                     </div>
                 </div>
-                
+
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">提交信息，继续实验</button>
                 </div>
             </form>
         </section>
-        
+
         <footer>
             <p>© 2025 AI绘画研究项目组 | 如有问题请联系: research@example.com</p>
         </footer>
@@ -220,74 +221,75 @@
 
     <script src="js/main.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 获取表单元素
-        const form = document.getElementById('basic-info-form');
-        
-        // 添加表单提交事件
-        form.addEventListener('submit', function(e) {
-            e.preventDefault(); // 阻止表单默认提交
-            
-            // 收集基本信息
-            const formData = new FormData(form);
-            const basicInfo = {};
-            
-            // 将表单数据转换为对象
-            for (const [key, value] of formData.entries()) {
-                basicInfo[key] = value;
-            }
-            
-            // 从localStorage获取现有用户数据，如果不存在则创建新对象
-            const userData = JSON.parse(localStorage.getItem('userData')) || {};
-            
-            // 保存基本信息
-            userData.basicInfo = basicInfo;
-            
-            // 添加PANAS情绪评分
-            userData.emotionalState = {
-                interested: parseInt(formData.get('interested')),
-                distressed: parseInt(formData.get('distressed')),
-                excited: parseInt(formData.get('excited')),
-                upset: parseInt(formData.get('upset'))
-                // 可以继续添加其他PANAS项目
-            };
-            
-            // 保存到localStorage
-            localStorage.setItem('userData', JSON.stringify(userData));
-            
-            // 跳转到实验说明页面
-            window.location.href = 'experiment.html';
-        });
-        
-        // 从localStorage预填表单(如果有保存的数据)
-        try {
-            const savedData = JSON.parse(localStorage.getItem('userData'));
-            if (savedData && savedData.basicInfo) {
-                const basicInfo = savedData.basicInfo;
-                
-                // 填充表单字段
-                Object.keys(basicInfo).forEach(key => {
-                    const element = form.elements[key];
-                    if (element) {
-                        element.value = basicInfo[key];
-                    }
-                });
-                
-                // 如果有情绪状态数据，填充PANAS评分
-                if (savedData.emotionalState) {
-                    const emotions = savedData.emotionalState;
-                    Object.keys(emotions).forEach(emotion => {
-                        const radioBtn = document.getElementById(`${emotion}_${emotions[emotion]}`);
-                        if (radioBtn) {
-                            radioBtn.checked = true;
+        document.addEventListener('DOMContentLoaded', function () {
+            // 获取表单元素
+            const form = document.getElementById('basic-info-form');
+
+            // 添加表单提交事件
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // 阻止表单默认提交
+
+                // 收集基本信息
+                const formData = new FormData(form);
+                const basicInfo = {};
+
+                // 将表单数据转换为对象
+                for (const [key, value] of formData.entries()) {
+                    basicInfo[key] = value;
+                }
+
+                // 从localStorage获取现有用户数据，如果不存在则创建新对象
+                const userData = JSON.parse(localStorage.getItem('userData')) || {};
+
+                // 保存基本信息
+                userData.basicInfo = basicInfo;
+
+                // 添加PANAS情绪评分
+                userData.emotionalState = {
+                    interested: parseInt(formData.get('interested')),
+                    distressed: parseInt(formData.get('distressed')),
+                    excited: parseInt(formData.get('excited')),
+                    upset: parseInt(formData.get('upset'))
+                    // 可以继续添加其他PANAS项目
+                };
+
+                // 保存到localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+
+                // 跳转到实验说明页面
+                window.location.href = 'experiment.html';
+            });
+
+            // 从localStorage预填表单(如果有保存的数据)
+            try {
+                const savedData = JSON.parse(localStorage.getItem('userData'));
+                if (savedData && savedData.basicInfo) {
+                    const basicInfo = savedData.basicInfo;
+
+                    // 填充表单字段
+                    Object.keys(basicInfo).forEach(key => {
+                        const element = form.elements[key];
+                        if (element) {
+                            element.value = basicInfo[key];
                         }
                     });
+
+                    // 如果有情绪状态数据，填充PANAS评分
+                    if (savedData.emotionalState) {
+                        const emotions = savedData.emotionalState;
+                        Object.keys(emotions).forEach(emotion => {
+                            const radioBtn = document.getElementById(`${emotion}_${emotions[emotion]}`);
+                            if (radioBtn) {
+                                radioBtn.checked = true;
+                            }
+                        });
+                    }
                 }
+            } catch (e) {
+                console.error('加载保存的数据时出错:', e);
             }
-        } catch (e) {
-            console.error('加载保存的数据时出错:', e);
-        }
-    });
+        });
     </script>
 </body>
+
 </html>
