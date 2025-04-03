@@ -1,9 +1,8 @@
 // 实验配置
 const experimentConfig = {
     fixationDuration: 500, // 注视点显示时间（毫秒）
-    imageDuration: 10000, // 图片显示时间（毫秒）
-    ratingDuration: 15000, // 评分时间限制（毫秒）
-    interTrialInterval: 2000, // 试次间隔（毫秒）
+    imageDuration: 100, // 图片显示时间（毫秒）
+    interTrialInterval: 200, // 试次间隔（毫秒）
     imagesPerGroup: 20, // 每组图片数量
     totalGroups: 3, // 总组数 (A组、B组、C组)
     imageBasePath: 'images/', // 图片文件夹路径
@@ -76,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 初始化随机图片序列
     generateImageSequence();
-    
+
     // 添加注意力检测图片
     insertAttentionChecks();
 
@@ -101,13 +100,18 @@ document.addEventListener('DOMContentLoaded', () => {
 function isArtisticBackground(userData) {
     const artExperience = userData.basicInfo?.art_experience;
     const artEducation = userData.basicInfo?.art_education;
+    const occupation = userData.basicInfo?.occupation;
 
-    if (!artExperience || !artEducation) return false;
+    if (!artExperience || !artEducation || !occupation) return false;
 
-    // 如果有3年以上艺术经验或接受过正式艺术教育，则视为艺术背景
+    // 艺术背景判断逻辑：
+    // 1. 艺术类学生
+    // 2. 艺术类行业从业者
+    // 3. 接受过系统的艺术教育/艺术相关学位
     return (
-        ['3_to_5', '5_to_10', 'more_than_10'].includes(artExperience) ||
-        ['degree', 'professional'].includes(artEducation)
+        occupation === '艺术类学生' ||
+        occupation === '艺术类行业从业者' ||
+        artEducation === '接受过系统的艺术教育/艺术相关学位'
     );
 }
 
@@ -155,73 +159,51 @@ function generateGroupSequence(type, count) {
 function generateImagesForTypes(type, count) {
     const images = [];
     const categories = experimentConfig.imageCategories;
-    
     // 确定每个类别需要的图片数量
     const countPerCategory = Math.ceil(count / categories.length);
-    
+
     // 为每个类别生成图片
     for (let categoryIndex = 0; categoryIndex < categories.length; categoryIndex++) {
         const category = categories[categoryIndex];
-        
         // 计算本类别需要的图片数量
         const categoryCount = Math.min(countPerCategory, count - images.length);
-        
+
         for (let i = 1; i <= categoryCount; i++) {
-            // 根据实际的图片命名规则构造文件名
-            // 确定图片组号
-            let groupNumber;
-            if (type === 'ai') {
-                groupNumber = experimentState.currentGroup === 0 ? 1 : 
-                             (experimentState.currentGroup === 2 ? 2 : 3);
-            } else {
-                // 人工绘制图片组
-                groupNumber = experimentState.currentGroup === 1 ? 1 : 2;
-            }
-            
-            const imageFile = `${type}_group${groupNumber}_${i}.jpg`;
-            
+            // 构造图片文件名，例如：1.jpg
+            const imageFile = `${i}.jpg`;
+            // 根据新的路径规则：images/ai/food/1.jpg
             images.push({
-                id: `${type}_${category}_${i}`,
-                path: `${experimentConfig.imageBasePath}${imageFile}`,
+                id: `${type}_${category}_${i}`, // 保留id，文件名简化
+                path: `${experimentConfig.imageBasePath}${type}/${category}/${imageFile}`,
                 type: type,
                 category: category
             });
         }
     }
-    
+
     return images;
 }
 
 /**
- * 插入注意力检测图片
+ * 替换注意力检测图片
  */
 function insertAttentionChecks() {
-    // 创建注意力检测图片数组
-    experimentState.attentionImages = [];
-    
-    // 每5张图插入一张注意力检测图
-    const attentionCheckCount = Math.floor(experimentState.imagesSequence.length / experimentConfig.attentionCheckFrequency);
-    
-    for (let i = 0; i < attentionCheckCount; i++) {
-        // 构造注意力检测图片信息
+    // 每隔5张替换成注意力检测图
+    for (let i = 4; i < experimentState.imagesSequence.length; i += 5) {
+        const randomCategoryIndex = Math.floor(Math.random() * experimentConfig.imageCategories.length);
+        const selectedCategory = experimentConfig.imageCategories[randomCategoryIndex];
+        const randomImageNumber = Math.floor(Math.random() * experimentConfig.imagesPerCategory) + 1;
+        const imagePath = `${experimentConfig.imageBasePath}attention/${selectedCategory}/${randomImageNumber}.jpg`;
+
         const attentionImage = {
-            id: `attention_check_${i+1}`,
-            path: `${experimentConfig.imageBasePath}attention_${i+1}.jpg`,
+            id: `attention_check_${(i / 5) + 1}`,
+            path: imagePath,
             type: 'attention',
-            category: 'landscape',
-            correctAnswer: `landscape` // 这里可以根据实际图片设置正确答案
+            category: selectedCategory,
+            correctAnswer: selectedCategory // 确保这里设置了正确答案
         };
-        
-        // 随机位置插入
-        const insertPosition = (i + 1) * experimentConfig.attentionCheckFrequency - Math.floor(Math.random() * 3);
-        
-        // 确保位置在有效范围内
-        const safePosition = Math.min(
-            Math.max(i * experimentConfig.attentionCheckFrequency + 1, insertPosition),
-            Math.min((i + 1) * experimentConfig.attentionCheckFrequency, experimentState.imagesSequence.length)
-        );
-        
-        experimentState.imagesSequence.splice(safePosition, 0, attentionImage);
+        // 替换第i张图片为注意力检测图
+        experimentState.imagesSequence[i] = attentionImage;
     }
 }
 
@@ -245,23 +227,10 @@ function updateCounters() {
     // 进度百分比
     const progressPercentage = Math.min(100, Math.max(0, (currentIndex / totalImages) * 100));
     document.getElementById('overall-progress').style.width = `${progressPercentage}%`;
-    
+
     // 更新进度文本
     document.getElementById('progress-text').textContent = `${currentIndex} / ${totalImages}`;
     document.getElementById('image-counter').textContent = `图片: ${currentIndex}/${totalImages}`;
-
-    // 更新组别文本
-    switch (experimentState.currentGroup) {
-        case 0:
-            document.getElementById('group-counter').textContent = '组别: A组';
-            break;
-        case 1:
-            document.getElementById('group-counter').textContent = '组别: B组';
-            break;
-        case 2:
-            document.getElementById('group-counter').textContent = '组别: C组';
-            break;
-    }
 }
 
 /**
@@ -274,10 +243,10 @@ function startTrial() {
     }
 
     updateCounters();
-    
+
     // 获取当前图片对象
     const currentImage = experimentState.imagesSequence[experimentState.currentSequenceIndex];
-    
+
     // 检查是否为注意力检测图片
     experimentState.needAttentionCheck = currentImage.type === 'attention';
 
@@ -301,47 +270,41 @@ function startTrial() {
 function showImage() {
     // 获取当前图片
     const currentImage = experimentState.imagesSequence[experimentState.currentSequenceIndex];
-    
+
     if (!currentImage) {
         console.error('没有更多图片可展示');
         finishExperiment();
         return;
     }
-    
+
     // 隐藏注视点，显示图片和计时器
     document.getElementById('fixation-point').style.display = 'none';
     document.getElementById('stimulus-image').style.display = 'block';
     document.getElementById('image-timer').style.display = 'block';
     document.getElementById('stimulus-image').src = currentImage.path;
-    
+
     // 设置图片计时器
     let timeLeft = Math.ceil(experimentConfig.imageDuration / 1000);
     document.getElementById('image-timer').textContent = timeLeft + 's';
-    
+
     // 清除可能存在的旧计时器
     if (window.imageTimerInterval) {
         clearInterval(window.imageTimerInterval);
     }
-    
+
     // 启动新计时器
     const startTime = Date.now();
     window.imageTimerInterval = setInterval(() => {
         const elapsedTime = Date.now() - startTime;
         timeLeft = Math.max(0, Math.ceil((experimentConfig.imageDuration - elapsedTime) / 1000));
         document.getElementById('image-timer').textContent = timeLeft + 's';
-        
+
         if (timeLeft <= 0 || elapsedTime >= experimentConfig.imageDuration) {
             clearInterval(window.imageTimerInterval);
-            // 图片展示结束，切换到下一步
-            if (experimentState.needAttentionCheck) {
-                // 如果需要进行注意力检测
-                showAttentionCheck(currentImage);
-            } else {
-                // 直接进入评分
-                showRatingForm();
-            }
+            // 图片展示结束，直接进入评分问卷
+            showRatingForm();
         }
-    }, 200);  // 更新频率
+    }, 200);
 }
 
 /**
@@ -352,32 +315,12 @@ function showRatingForm() {
     document.getElementById('image-display').style.display = 'none';
     document.getElementById('attention-check').style.display = 'none';
     document.getElementById('rating-form').style.display = 'block';
-    
+
     // 重置表单
     document.getElementById('image-rating').reset();
-    
-    // 设置评分计时器
-    let timeLeft = Math.ceil(experimentConfig.ratingDuration / 1000);
-    document.getElementById('rating-timer').textContent = timeLeft + 's';
-    
-    // 清除可能存在的旧计时器
-    if (window.ratingTimerInterval) {
-        clearInterval(window.ratingTimerInterval);
-    }
-    
-    // 启动新计时器
-    const startTime = Date.now();
-    window.ratingTimerInterval = setInterval(() => {
-        const elapsedTime = Date.now() - startTime;
-        timeLeft = Math.max(0, Math.ceil((experimentConfig.ratingDuration - elapsedTime) / 1000));
-        document.getElementById('rating-timer').textContent = timeLeft + 's';
-        
-        if (timeLeft <= 0 || elapsedTime >= experimentConfig.ratingDuration) {
-            clearInterval(window.ratingTimerInterval);
-            // 时间到，自动提交评分
-            submitRating();
-        }
-    }, 200);  // 更新频率
+
+    // 隐藏评分计时器
+    document.getElementById('rating-timer').style.display = 'none';
 }
 
 /**
@@ -388,11 +331,11 @@ function showAttentionCheck(image) {
     document.getElementById('image-display').style.display = 'none';
     document.getElementById('rating-form').style.display = 'none';
     document.getElementById('attention-check').style.display = 'block';
-    
+
     // 设置问题
     const attentionQuestion = document.querySelector('#attention-check h2 + p');
     attentionQuestion.textContent = '请回答关于刚才看到的风景图片的问题：';
-    
+
     // 重置表单
     document.getElementById('attention-form').reset();
 }
@@ -402,38 +345,65 @@ function showAttentionCheck(image) {
  */
 function submitAttentionCheck() {
     // 获取用户选择的答案
-    const selectedAnswer = document.querySelector('input[name="attention"]:checked').value;
+    const selectedAnswer = document.querySelector('input[name="attention"]:checked');
     
+    // 检查是否选择了答案
+    if (!selectedAnswer) {
+        alert('请选择一个选项');
+        return;
+    }
+    
+    const answerValue = selectedAnswer.value;
+
     // 获取当前图片
     const currentImage = experimentState.imagesSequence[experimentState.currentSequenceIndex];
-    const correctAnswer = currentImage.correctAnswer;
     
+    // 添加安全检查，确保currentImage存在且具有correctAnswer属性
+    if (!currentImage) {
+        console.error('注意力检测错误：当前图片对象未找到');
+        // 继续实验流程，跳过此次检测
+        experimentState.currentSequenceIndex++;
+        showAttentionBreak();
+        return;
+    }
+    
+    // 如果没有correctAnswer属性，使用图片的category作为默认答案
+    const correctAnswer = currentImage.correctAnswer || currentImage.category;
+
     // 记录结果
     const attentionResult = {
         userId: experimentState.userId,
         timestamp: new Date().toISOString(),
         imageId: currentImage.id,
-        userAnswer: selectedAnswer,
+        userAnswer: answerValue,
         correctAnswer: correctAnswer,
-        isCorrect: selectedAnswer === correctAnswer
+        isCorrect: answerValue === correctAnswer
     };
-    
+
     // 保存结果
     experimentState.attentionResults.push(attentionResult);
-    
+
     // 从localStorage获取用户数据
     const userData = JSON.parse(localStorage.getItem('userData')) || {};
-    
+
     // 确保experimentData和attentionResults存在
     if (!userData.experimentData) userData.experimentData = {};
     if (!userData.experimentData.attentionResults) userData.experimentData.attentionResults = [];
-    
+
     // 保存结果
     userData.experimentData.attentionResults.push(attentionResult);
     localStorage.setItem('userData', JSON.stringify(userData));
+
+    // 更新图片序列索引并继续实验
+    experimentState.currentSequenceIndex++;
     
-    // 注意力检测完成后进入1分钟休息环节
-    showAttentionBreak();
+    // 检查是否完成所有图片
+    if (experimentState.currentSequenceIndex >= experimentState.imagesSequence.length) {
+        finishExperiment();
+    } else {
+        // 注意力检测完成后进入休息环节
+        showAttentionBreak();
+    }
 }
 
 /**
@@ -444,28 +414,28 @@ function showAttentionBreak() {
     document.getElementById('image-display').style.display = 'none';
     document.getElementById('rating-form').style.display = 'none';
     document.getElementById('attention-check').style.display = 'none';
-    
+
     // 显示休息屏幕
     const breakScreen = document.getElementById('break-screen');
     breakScreen.style.display = 'block';
     const breakTimerElem = document.getElementById('break-timer');
     let timeLeft = 60;
     breakTimerElem.textContent = timeLeft + 's';
-    
+
     // 每秒更新倒计时
     const breakInterval = setInterval(() => {
-         timeLeft--;
-         breakTimerElem.textContent = timeLeft + 's';
-         if(timeLeft <= 0) {
-             clearInterval(breakInterval);
-             finishBreak();
-         }
+        timeLeft--;
+        breakTimerElem.textContent = timeLeft + 's';
+        if (timeLeft <= 0) {
+            clearInterval(breakInterval);
+            finishBreak();
+        }
     }, 1000);
-    
+
     // 添加一次性跳过按钮事件
     document.getElementById('skip-break').addEventListener('click', () => {
-         clearInterval(breakInterval);
-         finishBreak();
+        clearInterval(breakInterval);
+        finishBreak();
     }, { once: true });
 }
 
@@ -474,7 +444,15 @@ function showAttentionBreak() {
  */
 function finishBreak() {
     document.getElementById('break-screen').style.display = 'none';
-    showRatingForm();
+    
+    // 检查是否已完成所有图片
+    if (experimentState.currentSequenceIndex >= experimentState.imagesSequence.length) {
+        console.log('所有图片已显示完成，结束实验');
+        finishExperiment();
+    } else {
+        console.log('继续下一张图片, 索引:', experimentState.currentSequenceIndex);
+        startTrial();
+    }
 }
 
 /**
@@ -494,39 +472,61 @@ function showRest() {
     // 显示休息屏幕
     const restScreen = document.getElementById('rest-screen');
     restScreen.style.display = 'block';
-    
+
     // 休息2秒后隐藏休息屏幕并启动下一试次
     setTimeout(() => {
         restScreen.style.display = 'none';
+        
+        // 先检查是否实验结束
         if (experimentState.currentSequenceIndex >= experimentState.imagesSequence.length) {
+            console.log('休息结束后检测到实验完成，准备结束实验');
             finishExperiment();
         } else {
+            console.log('休息结束，继续下一张图片');
             startTrial();
         }
-    }, 2000);
+    }, experimentConfig.interTrialInterval);
 }
-
 /**
  * 提交评分
  */
 function submitRating() {
-    // 清除计时器
+    // 清除之前的错误提示信息
+    document.querySelectorAll('.error-message').forEach(el => el.remove());
+
+    // 检查所有评分是否已选择
+    const ratingFields = ['moral_disgust', 'technical_flaws', 'originality', 'emotional', 'visual_appeal'];
+    let incomplete = false;
+    ratingFields.forEach(field => {
+        if (!getSelectedRadioValue(field)) {
+            incomplete = true;
+            // 找到对应评分问题的容器
+            const container = document.querySelector(`input[name="${field}"]`).closest('.rating-question');
+            // 创建错误提示元素
+            const errorEl = document.createElement('div');
+            errorEl.className = 'error-message';
+            errorEl.style.color = 'red';
+            errorEl.style.fontSize = '0.9em';
+            errorEl.style.marginTop = '4px';
+            errorEl.textContent = '请完整选择此项评分';
+            container.appendChild(errorEl);
+        }
+    });
+
+    // 如果有未完成的评分，弹出提示并返回
+    if (incomplete) {
+        alert('请填写所有评分选项后再提交！');
+        return;
+    }
+
+    // 清除评分计时器
     if (window.ratingTimerInterval) {
         clearInterval(window.ratingTimerInterval);
     }
-    
+
     // 获取当前图片
     const currentImage = experimentState.imagesSequence[experimentState.currentSequenceIndex];
-    
-    // 如果是注意力检测图片，跳过评分收集
-    if (currentImage.type === 'attention') {
-        experimentState.currentSequenceIndex++;
-        setTimeout(() => {
-            startTrial();
-        }, experimentConfig.interTrialInterval);
-        return;
-    }
-    
+
     // 收集评分
     const rating = {
         userId: experimentState.userId,
@@ -542,31 +542,35 @@ function submitRating() {
         visualAppeal: parseInt(getSelectedRadioValue('visual_appeal')) || 0,
         deviceType: detectDeviceType()
     };
-    
+
     // 保存评分
     experimentState.ratings.push(rating);
-    
+
     // 更新本地存储
     const userData = JSON.parse(localStorage.getItem('userData')) || {};
     if (!userData.experimentData) userData.experimentData = {};
     if (!userData.experimentData.ratings) userData.experimentData.ratings = [];
-    
     userData.experimentData.ratings.push(rating);
-    
+
     // 保存当前进度
     userData.experimentData.currentProgress = {
         currentGroup: experimentState.currentGroup,
         currentIndex: experimentState.currentSequenceIndex,
         totalImages: experimentState.imagesSequence.length
     };
-    
+
     localStorage.setItem('userData', JSON.stringify(userData));
-    
+
     // 更新图片序列索引
     experimentState.currentSequenceIndex++;
-    
-    // 显示休息环节后再继续下一试次
-    showRest();
+
+    if (currentImage.type === 'attention') {
+        // 如果当前图片为注意力检测图片，则在评分后显示注意力检测
+        showAttentionCheck(currentImage);
+    } else {
+        // 否则，直接显示休息环节
+        showRest();
+    }
 }
 
 /**
@@ -574,23 +578,23 @@ function submitRating() {
  */
 function detectDeviceType() {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    
+
     // 检测移动设备
     if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase())) {
         // 区分平板和手机
-        if (/ipad/i.test(userAgent) || 
+        if (/ipad/i.test(userAgent) ||
             (/android/i.test(userAgent) && !/mobile/i.test(userAgent)) ||
             window.innerWidth >= 768 && window.innerHeight >= 768) {
             return 'tablet';
         }
         return 'mobile';
     }
-    
+
     // 将设备信息也保存到userData中
     const userData = JSON.parse(localStorage.getItem('userData')) || {};
     userData.deviceType = 'desktop'; // 默认为桌面端
     localStorage.setItem('userData', JSON.stringify(userData));
-    
+
     return 'desktop';
 }
 
@@ -607,6 +611,8 @@ document.addEventListener('DOMContentLoaded', () => {
  * 完成实验
  */
 function finishExperiment() {
+    console.log('实验结束，准备跳转到反馈页面');
+    
     // 保存所有数据
     const userData = JSON.parse(localStorage.getItem('userData')) || {};
 
@@ -620,13 +626,42 @@ function finishExperiment() {
     userData.experimentData.attentionResults = experimentState.attentionResults;
     userData.experimentData.experimentEndTime = new Date().toISOString();
 
+    // 保存到localStorage
     localStorage.setItem('userData', JSON.stringify(userData));
 
-    // 尝试上传数据到服务器
-    uploadExperimentData(userData);
+    // 自动保存数据为JSON文件
+    exportAsJson(userData);
 
-    // 跳转到反馈页面
-    window.location.href = 'feedback.html';
+    // 尝试上传数据到服务器
+    try {
+        uploadExperimentData(userData);
+    } catch (error) {
+        console.error('上传数据失败:', error);
+    }
+
+    // 确保在所有处理完成后跳转
+    setTimeout(() => {
+        console.log('正在跳转到反馈页面...');
+        window.location.href = 'feedback.html';
+    }, 500);
+}
+
+/**
+ * 将数据导出为JSON文件
+ */
+function exportAsJson(data) {
+    try {
+        // 将数据转换为JSON字符串
+        const jsonString = JSON.stringify(data, null, 2);
+        
+        // 仅将JSON保存到服务器，而不下载文件
+        console.log('实验数据已准备就绪，准备发送到服务器');
+        
+        // 这里只保留向服务器发送数据的部分
+        sendDataToServer(data);
+    } catch (error) {
+        console.error('数据处理失败:', error);
+    }
 }
 
 /**
@@ -634,14 +669,9 @@ function finishExperiment() {
  */
 function uploadExperimentData(userData) {
     console.log('尝试上传数据到服务器');
-    
-    // 实际项目中，这里应该使用 fetch 或 XMLHttpRequest 发送数据到服务器
-    // 这里仅记录日志，不执行实际上传
-    console.log('数据已准备好上传:', userData);
-    
-    // 示例 - 实际项目中取消注释并配置
-    /*
-    fetch('process.php', {
+
+    // 将数据发送到服务器
+    fetch('/result', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -654,6 +684,7 @@ function uploadExperimentData(userData) {
     })
     .catch(error => {
         console.error('数据上传失败:', error);
+        // 上传失败时，确保本地文件保存成功
+        console.log('尝试本地备份保存...');
     });
-    */
 }
