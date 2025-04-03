@@ -84,6 +84,8 @@ def process_json_file(filepath):
                 for result in attention_results:
                     for key, value in user_info.items():
                         result[key] = value
+                    # 确保 isCorrect 字段被包含到 DataFrame 中
+                    result['isCorrect'] = result.get('isCorrect', False)
                 
                 attention_df = pd.DataFrame(attention_results)
         
