@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI绘画负性评价原因探究 | 实验反馈</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.ico">
 </head>
 <body>
     <div class="container">
@@ -71,6 +72,26 @@
                     </div>
                 </div>
                 
+                <div class="rating-question">
+                    <h3>AI生成艺术体验</h3>
+                    <p>您是否体验过AI生成艺术这项技术（AI音乐、AI美术、AI视频）？</p>
+                    <div class="likert-scale">
+                        <div class="scale-options">
+                            <input type="radio" id="ai_art_no" name="ai_art_experience" value="否" required>
+                            <label for="ai_art_no">否</label>
+                            
+                            <input type="radio" id="ai_art_yes" name="ai_art_experience" value="是">
+                            <label for="ai_art_yes">是</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <h3>对AI大语言模型的看法</h3>
+                    <label for="llm_opinion">您如何看待AI大语言模型（Deepseek、ChatGPT、Gemini、文心一言等）：</label>
+                    <textarea id="llm_opinion" name="llm_opinion" rows="4" placeholder="请分享您对AI大语言模型的看法..."></textarea>
+                </div>
+                
                 <div class="form-group">
                     <label for="comments">您对AI生成艺术的其他看法或建议：</label>
                     <textarea id="comments" name="comments" rows="5" placeholder="请分享您的想法..."></textarea>
@@ -97,5 +118,6 @@
     </div>
     
     <script src="js/main.js"></script>
+   
 </body>
 </html>
