@@ -287,9 +287,9 @@ footer {
 }
 
 .fixation-cross {
-    font-size: 48px; /* 增大注视点大小，使其更明显 */
+    font-size: 1000%; /* 增大注视点大小，使其更明显 */
     font-weight: bold;
-    color: #000;
+    color: #00ff1d;
 }
 
 .image-container {
@@ -308,6 +308,7 @@ footer {
 }
 
 .timer {
+    font-size: 0.5rem;
     background-color: var(--primary-color);
     color: white;
     padding: 5px 10px;
