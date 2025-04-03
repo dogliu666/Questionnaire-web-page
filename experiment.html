@@ -6,6 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI绘画负性评价原因探究 | 图片评分</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="favicon.ico">
+    <style>
+        /* 针对此页面的特殊样式 */
+        .rating-question {
+            margin-bottom: 1.5rem;
+            padding: 15px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+        }
+
+        /* 小屏幕设备适配 */
+        @media (max-width: 768px) {
+            .rating-question .likert-scale {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            /* 确保文本和选项在小屏幕上仍然清晰可见 */
+            .likert-scale span {
+                font-size: 0.8rem;
+                text-align: center;
+                min-width: 60px;
+            }
+
+            /* 调整注意力检测问题在小屏幕上的显示 */
+            .radio-options {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .radio-item {
+                margin: 5px 0;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -16,7 +51,6 @@
                 <span id="progress-text">3/5</span>
             </div>
             <div class="experiment-info">
-                <span id="group-counter">组别: 1/4</span>
                 <span id="image-counter">图片: 1/5</span>
             </div>
         </header>
@@ -41,29 +75,22 @@
                 </div>
 
                 <div class="rating-question">
-                    <h3>道德厌恶</h3>
                     <p>我感觉此作品降低了人类艺术创作的独特性</p>
                     <div class="likert-scale">
                         <span>完全不同意</span>
                         <div class="scale-options">
                             <input type="radio" id="moral_disgust_1" name="moral_disgust" value="1" required>
                             <label for="moral_disgust_1">1</label>
-
                             <input type="radio" id="moral_disgust_2" name="moral_disgust" value="2">
                             <label for="moral_disgust_2">2</label>
-
                             <input type="radio" id="moral_disgust_3" name="moral_disgust" value="3">
                             <label for="moral_disgust_3">3</label>
-
                             <input type="radio" id="moral_disgust_4" name="moral_disgust" value="4">
                             <label for="moral_disgust_4">4</label>
-
                             <input type="radio" id="moral_disgust_5" name="moral_disgust" value="5">
                             <label for="moral_disgust_5">5</label>
-
                             <input type="radio" id="moral_disgust_6" name="moral_disgust" value="6">
                             <label for="moral_disgust_6">6</label>
-
                             <input type="radio" id="moral_disgust_7" name="moral_disgust" value="7">
                             <label for="moral_disgust_7">7</label>
                         </div>
@@ -72,29 +99,22 @@
                 </div>
 
                 <div class="rating-question">
-                    <h3>技术缺陷感知</h3>
                     <p>此作品存在明显的不协调感或错误</p>
                     <div class="likert-scale">
                         <span>完全不同意</span>
                         <div class="scale-options">
                             <input type="radio" id="technical_flaws_1" name="technical_flaws" value="1" required>
                             <label for="technical_flaws_1">1</label>
-
                             <input type="radio" id="technical_flaws_2" name="technical_flaws" value="2">
                             <label for="technical_flaws_2">2</label>
-
                             <input type="radio" id="technical_flaws_3" name="technical_flaws" value="3">
                             <label for="technical_flaws_3">3</label>
-
                             <input type="radio" id="technical_flaws_4" name="technical_flaws" value="4">
                             <label for="technical_flaws_4">4</label>
-
                             <input type="radio" id="technical_flaws_5" name="technical_flaws" value="5">
                             <label for="technical_flaws_5">5</label>
-
                             <input type="radio" id="technical_flaws_6" name="technical_flaws" value="6">
                             <label for="technical_flaws_6">6</label>
-
                             <input type="radio" id="technical_flaws_7" name="technical_flaws" value="7">
                             <label for="technical_flaws_7">7</label>
                         </div>
@@ -103,29 +123,22 @@
                 </div>
 
                 <div class="rating-question">
-                    <h3>原创性质疑</h3>
                     <p>此作品缺乏创新性，过于程式化</p>
                     <div class="likert-scale">
                         <span>完全不同意</span>
                         <div class="scale-options">
                             <input type="radio" id="originality_1" name="originality" value="1" required>
                             <label for="originality_1">1</label>
-
                             <input type="radio" id="originality_2" name="originality" value="2">
                             <label for="originality_2">2</label>
-
                             <input type="radio" id="originality_3" name="originality" value="3">
                             <label for="originality_3">3</label>
-
                             <input type="radio" id="originality_4" name="originality" value="4">
                             <label for="originality_4">4</label>
-
                             <input type="radio" id="originality_5" name="originality" value="5">
                             <label for="originality_5">5</label>
-
                             <input type="radio" id="originality_6" name="originality" value="6">
                             <label for="originality_6">6</label>
-
                             <input type="radio" id="originality_7" name="originality" value="7">
                             <label for="originality_7">7</label>
                         </div>
@@ -134,29 +147,22 @@
                 </div>
 
                 <div class="rating-question">
-                    <h3>情感共鸣</h3>
                     <p>此作品能传递情感或意境</p>
                     <div class="likert-scale">
                         <span>完全不同意</span>
                         <div class="scale-options">
                             <input type="radio" id="emotional_1" name="emotional" value="1" required>
                             <label for="emotional_1">1</label>
-
                             <input type="radio" id="emotional_2" name="emotional" value="2">
                             <label for="emotional_2">2</label>
-
                             <input type="radio" id="emotional_3" name="emotional" value="3">
                             <label for="emotional_3">3</label>
-
                             <input type="radio" id="emotional_4" name="emotional" value="4">
                             <label for="emotional_4">4</label>
-
                             <input type="radio" id="emotional_5" name="emotional" value="5">
                             <label for="emotional_5">5</label>
-
                             <input type="radio" id="emotional_6" name="emotional" value="6">
                             <label for="emotional_6">6</label>
-
                             <input type="radio" id="emotional_7" name="emotional" value="7">
                             <label for="emotional_7">7</label>
                         </div>
@@ -165,29 +171,22 @@
                 </div>
 
                 <div class="rating-question">
-                    <h3>购买意愿</h3>
                     <p>我认为这幅作品值得我购买</p>
                     <div class="likert-scale">
                         <span>完全不同意</span>
                         <div class="scale-options">
                             <input type="radio" id="visual_appeal_1" name="visual_appeal" value="1" required>
                             <label for="visual_appeal_1">1</label>
-
                             <input type="radio" id="visual_appeal_2" name="visual_appeal" value="2">
                             <label for="visual_appeal_2">2</label>
-
                             <input type="radio" id="visual_appeal_3" name="visual_appeal" value="3">
                             <label for="visual_appeal_3">3</label>
-
                             <input type="radio" id="visual_appeal_4" name="visual_appeal" value="4">
                             <label for="visual_appeal_4">4</label>
-
                             <input type="radio" id="visual_appeal_5" name="visual_appeal" value="5">
                             <label for="visual_appeal_5">5</label>
-
                             <input type="radio" id="visual_appeal_6" name="visual_appeal" value="6">
                             <label for="visual_appeal_6">6</label>
-
                             <input type="radio" id="visual_appeal_7" name="visual_appeal" value="7">
                             <label for="visual_appeal_7">7</label>
                         </div>
@@ -204,33 +203,33 @@
         <!-- 注意力检测问题 -->
         <div id="attention-check" class="attention-container hidden">
             <h2>注意力检测</h2>
-            <p>请回答关于刚才看到的风景图片的问题：</p>
+            <p>请回答关于刚才看到的图片中主要呈现的内容：</p>
             <form id="attention-form">
                 <div class="attention-question">
-                    <p>图片中主要包含以下哪种元素？</p>
+                    <p>图片中主要呈现以下哪种元素？</p>
                     <div class="radio-options">
                         <div class="radio-item">
-                            <input type="radio" id="attention_1" name="attention" value="mountains" required>
-                            <label for="attention_1">山脉</label>
+                            <input type="radio" id="attention_1" name="attention" value="people" required>
+                            <label for="attention_1">人物</label>
                         </div>
-
                         <div class="radio-item">
-                            <input type="radio" id="attention_2" name="attention" value="ocean">
-                            <label for="attention_2">海洋</label>
+                            <input type="radio" id="attention_2" name="attention" value="objects">
+                            <label for="attention_2">物品</label>
                         </div>
-
                         <div class="radio-item">
-                            <input type="radio" id="attention_3" name="attention" value="forest">
-                            <label for="attention_3">森林</label>
+                            <input type="radio" id="attention_3" name="attention" value="food">
+                            <label for="attention_3">食物</label>
                         </div>
-
                         <div class="radio-item">
-                            <input type="radio" id="attention_4" name="attention" value="desert">
-                            <label for="attention_4">沙漠</label>
+                            <input type="radio" id="attention_4" name="attention" value="buildings">
+                            <label for="attention_4">建筑</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="attention_5" name="attention" value="landscape">
+                            <label for="attention_5">风景</label>
                         </div>
                     </div>
                 </div>
-
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">提交答案</button>
                 </div>
@@ -248,45 +247,8 @@
             <p id="break-timer">60s</p>
             <button id="skip-break" class="btn-primary">跳过</button>
         </div>
-
-        <!-- 数据导出区域 -->
-        <div class="export-container"
-            style="text-align: center; margin-top: 2rem; padding: 1rem; border-top: 1px solid #ddd;">
-            <button id="export-data" class="btn-primary" style="background-color: #2ecc71;">导出实验数据</button>
-            <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #777;">可随时导出当前已完成的实验数据</p>
-        </div>
-
     </div>
-
     <script src="js/experiment.js"></script>
-    <script>
-        // 数据导出功能
-        document.getElementById('export-data').addEventListener('click', function () {
-            const savedData = localStorage.getItem('userData');
-            if (savedData) {
-                const userData = JSON.parse(savedData);
-
-                // 创建一个包含实验数据的Blob对象
-                const blob = new Blob([JSON.stringify(userData, null, 2)], { type: 'application/json' });
-
-                // 创建下载链接
-                const url = URL.createObjectURL(blob);
-                const downloadLink = document.createElement('a');
-                downloadLink.href = url;
-                downloadLink.download = 'experiment_results_' + new Date().toISOString().replace(/:/g, '-') + '.json';
-
-                // 添加链接到页面，触发下载，然后移除链接
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                setTimeout(() => {
-                    document.body.removeChild(downloadLink);
-                    URL.revokeObjectURL(url);
-                }, 100);
-            } else {
-                alert('暂无实验数据可导出');
-            }
-        });
-    </script>
 </body>
 
 </html>
