@@ -108,106 +108,6 @@
                     </select>
                 </div>
 
-                <h2>情绪状态量表 (PANAS)</h2>
-                <p>请根据您当前的情绪状态，评价以下感受的强度:</p>
-
-                <!-- 修改后的PANAS量表，统一使用与其他页面一致的likert-scale样式 -->
-                <div class="panas-question">
-                    <span class="panas-word">感兴趣的</span>
-                    <div class="likert-scale">
-                        <span>很少</span>
-                        <div class="scale-options">
-                            <input type="radio" id="interested_1" name="interested" value="1" required>
-                            <label for="interested_1">1</label>
-
-                            <input type="radio" id="interested_2" name="interested" value="2">
-                            <label for="interested_2">2</label>
-
-                            <input type="radio" id="interested_3" name="interested" value="3">
-                            <label for="interested_3">3</label>
-
-                            <input type="radio" id="interested_4" name="interested" value="4">
-                            <label for="interested_4">4</label>
-
-                            <input type="radio" id="interested_5" name="interested" value="5">
-                            <label for="interested_5">5</label>
-                        </div>
-                        <span>很多</span>
-                    </div>
-                </div>
-
-                <div class="panas-question">
-                    <span class="panas-word">痛苦的</span>
-                    <div class="likert-scale">
-                        <span>很少</span>
-                        <div class="scale-options">
-                            <input type="radio" id="distressed_1" name="distressed" value="1" required>
-                            <label for="distressed_1">1</label>
-
-                            <input type="radio" id="distressed_2" name="distressed" value="2">
-                            <label for="distressed_2">2</label>
-
-                            <input type="radio" id="distressed_3" name="distressed" value="3">
-                            <label for="distressed_3">3</label>
-
-                            <input type="radio" id="distressed_4" name="distressed" value="4">
-                            <label for="distressed_4">4</label>
-
-                            <input type="radio" id="distressed_5" name="distressed" value="5">
-                            <label for="distressed_5">5</label>
-                        </div>
-                        <span>很多</span>
-                    </div>
-                </div>
-
-                <div class="panas-question">
-                    <span class="panas-word">兴奋的</span>
-                    <div class="likert-scale">
-                        <span>很少</span>
-                        <div class="scale-options">
-                            <input type="radio" id="excited_1" name="excited" value="1" required>
-                            <label for="excited_1">1</label>
-
-                            <input type="radio" id="excited_2" name="excited" value="2">
-                            <label for="excited_2">2</label>
-
-                            <input type="radio" id="excited_3" name="excited" value="3">
-                            <label for="excited_3">3</label>
-
-                            <input type="radio" id="excited_4" name="excited" value="4">
-                            <label for="excited_4">4</label>
-
-                            <input type="radio" id="excited_5" name="excited" value="5">
-                            <label for="excited_5">5</label>
-                        </div>
-                        <span>很多</span>
-                    </div>
-                </div>
-
-                <div class="panas-question">
-                    <span class="panas-word">心烦的</span>
-                    <div class="likert-scale">
-                        <span>很少</span>
-                        <div class="scale-options">
-                            <input type="radio" id="upset_1" name="upset" value="1" required>
-                            <label for="upset_1">1</label>
-
-                            <input type="radio" id="upset_2" name="upset" value="2">
-                            <label for="upset_2">2</label>
-
-                            <input type="radio" id="upset_3" name="upset" value="3">
-                            <label for="upset_3">3</label>
-
-                            <input type="radio" id="upset_4" name="upset" value="4">
-                            <label for="upset_4">4</label>
-
-                            <input type="radio" id="upset_5" name="upset" value="5">
-                            <label for="upset_5">5</label>
-                        </div>
-                        <span>很多</span>
-                    </div>
-                </div>
-
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">提交信息，继续实验</button>
                 </div>
@@ -244,15 +144,6 @@
                 // 保存基本信息
                 userData.basicInfo = basicInfo;
 
-                // 添加PANAS情绪评分
-                userData.emotionalState = {
-                    interested: parseInt(formData.get('interested')),
-                    distressed: parseInt(formData.get('distressed')),
-                    excited: parseInt(formData.get('excited')),
-                    upset: parseInt(formData.get('upset'))
-                    // 可以继续添加其他PANAS项目
-                };
-
                 // 保存到localStorage
                 localStorage.setItem('userData', JSON.stringify(userData));
 
@@ -273,17 +164,6 @@
                             element.value = basicInfo[key];
                         }
                     });
-
-                    // 如果有情绪状态数据，填充PANAS评分
-                    if (savedData.emotionalState) {
-                        const emotions = savedData.emotionalState;
-                        Object.keys(emotions).forEach(emotion => {
-                            const radioBtn = document.getElementById(`${emotion}_${emotions[emotion]}`);
-                            if (radioBtn) {
-                                radioBtn.checked = true;
-                            }
-                        });
-                    }
                 }
             } catch (e) {
                 console.error('加载保存的数据时出错:', e);
