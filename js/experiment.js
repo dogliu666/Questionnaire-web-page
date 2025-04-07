@@ -60,20 +60,29 @@ document.addEventListener('DOMContentLoaded', () => {
         // 根据艺术背景分为艺术组和普通组
         const isArtBackground = isArtisticBackground(userData);
 
-        // 随机分配到A组(0)、B组(1)或C组(2)
-        const groupAssignment = Math.floor(Math.random() * 3);
+        // 随机分配到 AI组(0), 人类组(1), 或 混合组(2)
+        const groupAssignment = Math.floor(Math.random() * 3); // 0, 1, or 2
+
+        let groupName = '';
+        switch (groupAssignment) {
+            case 0: groupName = 'AI组'; break;
+            case 1: groupName = '人类组'; break;
+            case 2: groupName = '混合组'; break;
+        }
 
         userData.experimentGroup = {
             isArtBackground: isArtBackground,
-            groupType: groupAssignment // 0=A组(AI), 1=B组(手绘), 2=C组
+            groupType: groupAssignment, // 0=AI, 1=人类, 2=混合
+            groupName: groupName // 添加组名以提高可读性
         };
 
         localStorage.setItem('userData', JSON.stringify(userData));
     }
 
+    // 使用已分配或新分配的组别
     experimentState.currentGroup = userData.experimentGroup.groupType;
 
-    // 初始化随机图片序列
+    // 初始化随机图片序列 (基于 groupType)
     generateImageSequence();
 
     // 添加注意力检测图片
@@ -127,22 +136,34 @@ function generateUserId() {
  */
 function generateImageSequence() {
     experimentState.imagesSequence = [];
+    const groupType = experimentState.currentGroup; // 使用状态中的组别类型
 
-    switch (experimentState.currentGroup) {
-        case 0: // A组 - AI生成图片
+    switch (groupType) {
+        case 0: // AI组
+            console.log("分配到 AI组");
             generateGroupSequence('ai', experimentConfig.imagesPerGroup);
             break;
-        case 1: // B组 - 手绘图片
+        case 1: // 人类组
+            console.log("分配到 人类组");
             generateGroupSequence('human', experimentConfig.imagesPerGroup);
             break;
-        case 2: // C组 - AI与人类作品C（各10张，共20张）
-            const aiImages = generateImagesForTypes('ai', experimentConfig.imagesPerGroup / 2);
-            const humanImages = generateImagesForTypes('human', experimentConfig.imagesPerGroup / 2);
-            experimentState.imagesSequence = [...aiImages, ...humanImages];
-            // 随机打乱C后的序列
-            shuffleArray(experimentState.imagesSequence);
+        case 2: // 混合组
+            console.log("分配到 混合组");
+            generateGroupSequence('mix', experimentConfig.imagesPerGroup);
+            break;
+        default:
+            console.error("无效的实验组别:", groupType);
+            generateGroupSequence('mix', experimentConfig.imagesPerGroup); // 默认为混合组
             break;
     }
+}
+
+/**
+ * 为指定组和类型生成图片序列
+ */
+function generateGroupSequence(type, count) {
+    experimentState.imagesSequence = generateImagesForTypes(type, count);
+    shuffleArray(experimentState.imagesSequence);
 }
 
 /**
@@ -346,27 +367,34 @@ function showAttentionCheck(image) {
 function submitAttentionCheck() {
     // 获取用户选择的答案
     const selectedAnswer = document.querySelector('input[name="attention"]:checked');
-    
+
     // 检查是否选择了答案
     if (!selectedAnswer) {
         alert('请选择一个选项');
         return;
     }
-    
+
     const answerValue = selectedAnswer.value;
 
-    // 获取当前图片
-    const currentImage = experimentState.imagesSequence[experimentState.currentSequenceIndex];
-    
-    // 添加安全检查，确保currentImage存在且具有correctAnswer属性
-    if (!currentImage) {
-        console.error('注意力检测错误：当前图片对象未找到');
-        // 继续实验流程，跳过此次检测
-        experimentState.currentSequenceIndex++;
-        showAttentionBreak();
+    // 获取当前图片 (Index has already been incremented by submitRating)
+    // We actually need the image that triggered the attention check, which is at index - 1
+    const attentionImageIndex = experimentState.currentSequenceIndex - 1; // Correct index for the image just rated
+    if (attentionImageIndex < 0 || attentionImageIndex >= experimentState.imagesSequence.length) {
+        console.error('注意力检测错误：无法找到触发检测的图片索引');
+        // Attempt to recover gracefully
+        showAttentionBreak(); // Proceed to break, maybe log error server-side later
         return;
     }
-    
+    const currentImage = experimentState.imagesSequence[attentionImageIndex]; // Get the correct image
+
+    // 添加安全检查，确保currentImage存在且具有correctAnswer属性
+    if (!currentImage || currentImage.type !== 'attention') { // Double-check it's an attention image
+        console.error('注意力检测错误：当前图片对象无效或类型不匹配', currentImage);
+        // 继续实验流程，跳过此次检测
+        showAttentionBreak(); // Proceed to break
+        return;
+    }
+
     // 如果没有correctAnswer属性，使用图片的category作为默认答案
     const correctAnswer = currentImage.correctAnswer || currentImage.category;
 
@@ -374,7 +402,7 @@ function submitAttentionCheck() {
     const attentionResult = {
         userId: experimentState.userId,
         timestamp: new Date().toISOString(),
-        imageId: currentImage.id,
+        imageId: currentImage.id, // Use the correct image ID
         userAnswer: answerValue,
         correctAnswer: correctAnswer,
         isCorrect: answerValue === correctAnswer
@@ -394,10 +422,7 @@ function submitAttentionCheck() {
     userData.experimentData.attentionResults.push(attentionResult);
     localStorage.setItem('userData', JSON.stringify(userData));
 
-    // 更新图片序列索引并继续实验
-    experimentState.currentSequenceIndex++;
-    
-    // 检查是否完成所有图片
+    // 检查是否完成所有图片 (Check using the already incremented index)
     if (experimentState.currentSequenceIndex >= experimentState.imagesSequence.length) {
         finishExperiment();
     } else {
@@ -444,7 +469,7 @@ function showAttentionBreak() {
  */
 function finishBreak() {
     document.getElementById('break-screen').style.display = 'none';
-    
+
     // 检查是否已完成所有图片
     if (experimentState.currentSequenceIndex >= experimentState.imagesSequence.length) {
         console.log('所有图片已显示完成，结束实验');
@@ -476,7 +501,7 @@ function showRest() {
     // 休息2秒后隐藏休息屏幕并启动下一试次
     setTimeout(() => {
         restScreen.style.display = 'none';
-        
+
         // 先检查是否实验结束
         if (experimentState.currentSequenceIndex >= experimentState.imagesSequence.length) {
             console.log('休息结束后检测到实验完成，准备结束实验');
@@ -509,7 +534,10 @@ function submitRating() {
             errorEl.style.fontSize = '0.9em';
             errorEl.style.marginTop = '4px';
             errorEl.textContent = '请完整选择此项评分';
-            container.appendChild(errorEl);
+            // 避免重复添加错误消息
+            if (!container.querySelector('.error-message')) {
+                container.appendChild(errorEl);
+            }
         }
     });
 
@@ -524,15 +552,20 @@ function submitRating() {
         clearInterval(window.ratingTimerInterval);
     }
 
-    // 获取当前图片
+    // 获取当前图片和实验组信息
     const currentImage = experimentState.imagesSequence[experimentState.currentSequenceIndex];
+    const userData = JSON.parse(localStorage.getItem('userData')) || {}; // 获取最新的userData
+    const experimentGroupInfo = userData.experimentGroup || { groupName: '未知', groupType: -1, isArtBackground: undefined }; // 安全获取，提供默认值
 
     // 收集评分
     const rating = {
         userId: experimentState.userId,
         imageId: currentImage.id,
         timestamp: new Date().toISOString(),
-        group: ['A', 'B', 'C'][experimentState.currentGroup],
+        // 使用存储的组名和类型
+        groupName: experimentGroupInfo.groupName,
+        groupType: experimentGroupInfo.groupType,
+        isArtBackground: experimentGroupInfo.isArtBackground, // 添加艺术背景信息
         imageType: currentImage.type,
         imageCategory: currentImage.category,
         moralDisgust: parseInt(getSelectedRadioValue('moral_disgust')) || 0,
@@ -546,8 +579,7 @@ function submitRating() {
     // 保存评分
     experimentState.ratings.push(rating);
 
-    // 更新本地存储
-    const userData = JSON.parse(localStorage.getItem('userData')) || {};
+    // 更新本地存储中的实验数据
     if (!userData.experimentData) userData.experimentData = {};
     if (!userData.experimentData.ratings) userData.experimentData.ratings = [];
     userData.experimentData.ratings.push(rating);
@@ -564,14 +596,14 @@ function submitRating() {
     // 更新图片序列索引
     experimentState.currentSequenceIndex++;
 
+    // 根据图片类型决定下一步
     if (currentImage.type === 'attention') {
-        // 如果当前图片为注意力检测图片，则在评分后显示注意力检测
         showAttentionCheck(currentImage);
     } else {
-        // 否则，直接显示休息环节
         showRest();
     }
 }
+
 
 /**
  * 检测设备类型
@@ -612,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function finishExperiment() {
     console.log('实验结束，准备跳转到反馈页面');
-    
+
     // 保存所有数据
     const userData = JSON.parse(localStorage.getItem('userData')) || {};
 
@@ -653,10 +685,10 @@ function exportAsJson(data) {
     try {
         // 将数据转换为JSON字符串
         const jsonString = JSON.stringify(data, null, 2);
-        
+
         // 仅将JSON保存到服务器，而不下载文件
         console.log('实验数据已准备就绪，准备发送到服务器');
-        
+
         // 这里只保留向服务器发送数据的部分
         sendDataToServer(data);
     } catch (error) {
@@ -670,21 +702,65 @@ function exportAsJson(data) {
 function uploadExperimentData(userData) {
     console.log('尝试上传数据到服务器');
 
+    // 确保将完整的实验数据与用户反馈合并
+    const userDataToSave = JSON.parse(localStorage.getItem('userData')) || {};
+
+    // 合并实验数据
+    userDataToSave.experimentData = userData.experimentData;
+
+    // 保存回localStorage以确保数据一致性
+    localStorage.setItem('userData', JSON.stringify(userDataToSave));
+
     // 将数据发送到服务器
     fetch('/result', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(userDataToSave)
     })
-    .then(response => response.json())
-    .then(result => {
-        console.log('数据上传成功:', result);
-    })
-    .catch(error => {
-        console.error('数据上传失败:', error);
-        // 上传失败时，确保本地文件保存成功
-        console.log('尝试本地备份保存...');
-    });
+        .then(response => response.json())
+        .then(result => {
+            console.log('数据上传成功:', result);
+        })
+        .catch(error => {
+            console.error('数据上传失败:', error);
+        });
+}
+
+// 修改 finishExperiment 函数
+function finishExperiment() {
+    console.log('实验结束，准备跳转到反馈页面');
+
+    // 保存所有数据
+    const userData = JSON.parse(localStorage.getItem('userData')) || {};
+
+    // 确保实验数据对象存在
+    if (!userData.experimentData) {
+        userData.experimentData = {};
+    }
+
+    // 将当前实验状态中的数据合并到userData中
+    userData.experimentData.ratings = experimentState.ratings;
+    userData.experimentData.attentionResults = experimentState.attentionResults;
+    userData.experimentData.experimentEndTime = new Date().toISOString();
+
+    // 确保用户ID一致
+    userData.userId = experimentState.userId;
+
+    // 保存到localStorage
+    localStorage.setItem('userData', JSON.stringify(userData));
+
+    // 尝试上传数据到服务器
+    try {
+        uploadExperimentData(userData);
+    } catch (error) {
+        console.error('上传数据失败:', error);
+    }
+
+    // 确保在所有处理完成后跳转
+    setTimeout(() => {
+        console.log('正在跳转到反馈页面...');
+        window.location.href = 'feedback.html';
+    }, 500);
 }
