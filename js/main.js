@@ -61,7 +61,7 @@ function initWelcomePage() {
             // 保存到localStorage
             localStorage.setItem('userData', JSON.stringify(userData));
             // 修改：跳转到基本信息页面
-            window.location.href = 'basic-info.html';
+            window.location.href = 'Information-Collection.html';
         });
     }
 }
