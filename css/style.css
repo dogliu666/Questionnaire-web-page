@@ -19,7 +19,9 @@
 }
 
 body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: "Noto Sans SC", sans-serif, 'Helvetica Neue', Arial, sans-serif;
+    font-optical-sizing: auto;
+    font-weight: bold;
     line-height: 1.6;
     color: var(--text-color);
     background-color: #fff;
@@ -341,6 +343,9 @@ footer {
     padding: 15px;
     background-color: var(--light-gray);
     border-radius: 8px;
+    position: relative; /* 添加相对定位 */
+    padding-bottom: 35px; /* 增加底部内边距为标签留出空间 */
+
 }
 
 .likert-scale {
