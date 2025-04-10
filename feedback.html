@@ -1,12 +1,68 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI绘画负性评价原因探究 | 实验反馈</title>
+    <title>绘画作品感知与评价实验 | 实验反馈</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="favicon.ico">
+    <style>
+        /* 针对此页面的特殊样式 */
+        .rating-question {
+            margin-bottom: 1.5rem;
+            padding: 15px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+        }
+
+        /* 小屏幕设备适配 */
+        @media (max-width: 768px) {
+            .rating-question .likert-scale {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            /* 确保文本和选项在小屏幕上仍然清晰可见 */
+            .likert-scale span {
+                font-size: 0.8rem;
+                text-align: center;
+                min-width: 60px;
+            }
+
+            /* 调整表单元素在小屏幕上的显示 */
+            .form-group textarea {
+                width: 100%;
+            }
+
+            /* 调整标题和文本在小屏幕上的大小 */
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            /* 确保按钮在小屏幕上足够大以便于点击 */
+            .btn-primary {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+
+            /* 调整页脚在小屏幕上的显示 */
+            footer {
+                margin-top: 2rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -16,62 +72,58 @@
                 <span>5/5</span>
             </div>
         </header>
-        
+
         <section id="feedback-container">
             <h2>感谢您参与本次实验！</h2>
             <p>您已完成所有实验任务，总耗时约 <span id="experiment-duration">--</span>。请花几分钟时间完成以下反馈问卷，您的意见对我们非常重要。</p>
-            
+
             <form id="feedback-form">
                 <div class="rating-question">
                     <h3>实验体验</h3>
                     <p>您觉得本次实验体验如何？</p>
                     <div class="likert-scale">
-                        <span>非常不好</span>
                         <div class="scale-options">
                             <input type="radio" id="experience_1" name="experience" value="1" required>
                             <label for="experience_1">1</label>
-                            
                             <input type="radio" id="experience_2" name="experience" value="2">
                             <label for="experience_2">2</label>
-                            
                             <input type="radio" id="experience_3" name="experience" value="3">
                             <label for="experience_3">3</label>
-                            
                             <input type="radio" id="experience_4" name="experience" value="4">
                             <label for="experience_4">4</label>
-                            
                             <input type="radio" id="experience_5" name="experience" value="5">
                             <label for="experience_5">5</label>
                         </div>
-                        <span>非常好</span>
+                        <div class="likert-labels">
+                            <span>非常不好</span>
+                            <span>非常好</span>
+                        </div>
                     </div>
                 </div>
-                
+
                 <div class="rating-question">
                     <h3>实验难度</h3>
                     <p>您觉得完成本次实验的难度如何？</p>
                     <div class="likert-scale">
-                        <span>非常简单</span>
                         <div class="scale-options">
                             <input type="radio" id="difficulty_1" name="difficulty" value="1" required>
                             <label for="difficulty_1">1</label>
-                            
                             <input type="radio" id="difficulty_2" name="difficulty" value="2">
                             <label for="difficulty_2">2</label>
-                            
                             <input type="radio" id="difficulty_3" name="difficulty" value="3">
                             <label for="difficulty_3">3</label>
-                            
                             <input type="radio" id="difficulty_4" name="difficulty" value="4">
                             <label for="difficulty_4">4</label>
-                            
                             <input type="radio" id="difficulty_5" name="difficulty" value="5">
                             <label for="difficulty_5">5</label>
                         </div>
-                        <span>非常困难</span>
+                        <div class="likert-labels">
+                            <span>非常简单</span>
+                            <span>非常困难</span>
+                        </div>
                     </div>
                 </div>
-                
+
                 <div class="rating-question">
                     <h3>AI生成艺术体验</h3>
                     <p>您是否体验过AI生成艺术这项技术（AI音乐、AI美术、AI视频）？</p>
@@ -79,30 +131,36 @@
                         <div class="scale-options">
                             <input type="radio" id="ai_art_no" name="ai_art_experience" value="否" required>
                             <label for="ai_art_no">否</label>
-                            
+
                             <input type="radio" id="ai_art_yes" name="ai_art_experience" value="是">
                             <label for="ai_art_yes">是</label>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
-                    <h3>对AI大语言模型的看法</h3>
                     <label for="llm_opinion">您如何看待AI大语言模型（Deepseek、ChatGPT、Gemini、文心一言等）：</label>
-                    <textarea id="llm_opinion" name="llm_opinion" rows="4" placeholder="请分享您对AI大语言模型的看法..."></textarea>
+                    <select id="llm_opinion" name="llm_opinion" required>
+                        <option value="">请选择</option>
+                        <option value="very_negative">非常负面</option>
+                        <option value="somewhat_negative">略微负面</option>
+                        <option value="neutral">中立</option>
+                        <option value="somewhat_positive">略微正面</option>
+                        <option value="very_positive">非常正面</option>
+                    </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="comments">您对AI生成艺术的其他看法或建议：</label>
                     <textarea id="comments" name="comments" rows="5" placeholder="请分享您的想法..."></textarea>
                 </div>
-                
+
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">提交反馈</button>
                 </div>
             </form>
         </section>
-        
+
         <section id="thank-you-message" class="hidden">
             <div class="welcome-section">
                 <h2>非常感谢您的参与！</h2>
@@ -111,13 +169,14 @@
                 <p>您现在可以安全关闭此页面。</p>
             </div>
         </section>
-        
+
         <footer>
-            <p>&copy; 2025 AI绘画负性评价原因探究项目组</p>
+            <p>&copy; 2025 绘画作品感知与评价实验项目组</p>
         </footer>
     </div>
-    
+
     <script src="js/main.js"></script>
-   
+
 </body>
+
 </html>
