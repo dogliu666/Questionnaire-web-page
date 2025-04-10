@@ -73,11 +73,10 @@
                 <div class="rating-timer-container">
                     <div id="rating-timer" class="timer">15</div>
                 </div>
-
+            <div style="text-align: center;"><h3>根据你的第一感受进行回答<br>（1 = 完全不同意，7 = 完全同意）</h3></div>
                 <div class="rating-question">
-                    <p>我感觉此作品降低了人类艺术创作的独特性</p>
+                    <p style="text-align: center;">我觉得这幅作品表达了真实且有感染力的情感</p>
                     <div class="likert-scale">
-                        <span>完全不同意</span>
                         <div class="scale-options">
                             <input type="radio" id="moral_disgust_1" name="moral_disgust" value="1" required>
                             <label for="moral_disgust_1">1</label>
@@ -94,14 +93,16 @@
                             <input type="radio" id="moral_disgust_7" name="moral_disgust" value="7">
                             <label for="moral_disgust_7">7</label>
                         </div>
-                        <span>完全同意</span>
+                        <div class="likert-labels">
+                            <span>完全不同意</span>
+                            <span>完全同意</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="rating-question">
-                    <p>此作品存在明显的不协调感或错误</p>
+                    <p style="text-align: center;">该作品在画面构成、比例或色彩运用上存在明显的不协调之处</p>
                     <div class="likert-scale">
-                        <span>完全不同意</span>
                         <div class="scale-options">
                             <input type="radio" id="technical_flaws_1" name="technical_flaws" value="1" required>
                             <label for="technical_flaws_1">1</label>
@@ -118,14 +119,16 @@
                             <input type="radio" id="technical_flaws_7" name="technical_flaws" value="7">
                             <label for="technical_flaws_7">7</label>
                         </div>
-                        <span>完全同意</span>
+                        <div class="likert-labels">
+                            <span>完全不同意</span>
+                            <span>完全同意</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="rating-question">
-                    <p>此作品缺乏创新性，过于程式化</p>
+                    <p style="text-align: center;">我认为这幅作品缺少清晰的创意或个人风格</p>
                     <div class="likert-scale">
-                        <span>完全不同意</span>
                         <div class="scale-options">
                             <input type="radio" id="originality_1" name="originality" value="1" required>
                             <label for="originality_1">1</label>
@@ -142,14 +145,16 @@
                             <input type="radio" id="originality_7" name="originality" value="7">
                             <label for="originality_7">7</label>
                         </div>
-                        <span>完全同意</span>
+                        <div class="likert-labels">
+                            <span>完全不同意</span>
+                            <span>完全同意</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="rating-question">
-                    <p>此作品能传递情感或意境</p>
+                    <p style="text-align: center;">我觉得此作品在视觉上令人愉悦</p>
                     <div class="likert-scale">
-                        <span>完全不同意</span>
                         <div class="scale-options">
                             <input type="radio" id="emotional_1" name="emotional" value="1" required>
                             <label for="emotional_1">1</label>
@@ -166,14 +171,42 @@
                             <input type="radio" id="emotional_7" name="emotional" value="7">
                             <label for="emotional_7">7</label>
                         </div>
-                        <span>完全同意</span>
+                        <div class="likert-labels">
+                            <span>完全不同意</span>
+                            <span>完全同意</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="rating-question">
-                    <p>我认为这幅作品值得我购买</p>
+                    <p style="text-align: center;">我认为这幅作品的创作方式可能降低了人类艺术家的价值</p>
                     <div class="likert-scale">
-                        <span>完全不同意</span>
+                        <div class="scale-options">
+                            <input type="radio" id="artist_value_1" name="artist_value" value="1" required>
+                            <label for="artist_value_1">1</label>
+                            <input type="radio" id="artist_value_2" name="artist_value" value="2">
+                            <label for="artist_value_2">2</label>
+                            <input type="radio" id="artist_value_3" name="artist_value" value="3">
+                            <label for="artist_value_3">3</label>
+                            <input type="radio" id="artist_value_4" name="artist_value" value="4">
+                            <label for="artist_value_4">4</label>
+                            <input type="radio" id="artist_value_5" name="artist_value" value="5">
+                            <label for="artist_value_5">5</label>
+                            <input type="radio" id="artist_value_6" name="artist_value" value="6">
+                            <label for="artist_value_6">6</label>
+                            <input type="radio" id="artist_value_7" name="artist_value" value="7">
+                            <label for="artist_value_7">7</label>
+                        </div>
+                        <div class="likert-labels">
+                            <span>完全不同意</span>
+                            <span>完全同意</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rating-question">
+                    <p style="text-align: center;">如果可以，我愿意购买这幅作品以收藏或使用</p>
+                    <div class="likert-scale">
                         <div class="scale-options">
                             <input type="radio" id="visual_appeal_1" name="visual_appeal" value="1" required>
                             <label for="visual_appeal_1">1</label>
@@ -190,7 +223,10 @@
                             <input type="radio" id="visual_appeal_7" name="visual_appeal" value="7">
                             <label for="visual_appeal_7">7</label>
                         </div>
-                        <span>完全同意</span>
+                        <div class="likert-labels">
+                            <span>完全不同意</span>
+                            <span>完全同意</span>
+                        </div>
                     </div>
                 </div>
 
