@@ -29,7 +29,7 @@ let experimentState = {
 const elements = {
     fixationPoint: document.getElementById('fixation-point'),
     imageDisplay: document.getElementById('image-display'),
-    ratingForm: document.getElementById('rating-form'),
+    ratingForm: document.getElementById('image-rating'),
     attentionCheck: document.getElementById('attention-check'),
     stimulusImage: document.getElementById('stimulus-image'),
     imageTimer: document.getElementById('image-timer'),
@@ -37,7 +37,8 @@ const elements = {
     progressBar: document.getElementById('overall-progress'),
     progressText: document.getElementById('progress-text'),
     groupCounter: document.getElementById('group-counter'),
-    imageCounter: document.getElementById('image-counter')
+    imageCounter: document.getElementById('image-counter'),
+    submitRatingButton: document.getElementById('submit-rating') // 添加提交按钮引用
 };
 
 // 计时器ID
@@ -91,9 +92,28 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCounters();
     startTrial();
 
+    // 获取评分表单和提交按钮的引用 (如果尚未在 elements 中定义)
+    const ratingForm = document.getElementById('image-rating');
+    const submitRatingButton = document.getElementById('submit-rating');
+
+    // 初始化时禁用提交按钮
+    if (submitRatingButton) {
+        submitRatingButton.disabled = true;
+    }
+
+    // 为评分表单添加 'change' 事件监听器，当任何单选按钮改变时触发
+    if (ratingForm) {
+        ratingForm.addEventListener('change', updateSubmitButtonState);
+    }
+
     // 添加表单提交事件
     document.getElementById('image-rating').addEventListener('submit', function (e) {
         e.preventDefault();
+        // 在提交时再次检查（虽然按钮状态应已阻止）
+        if (!checkRatingsComplete()) {
+            console.warn("尝试提交未完成的评分。");
+            return;
+        }
         submitRating();
     });
 
@@ -156,14 +176,6 @@ function generateImageSequence() {
             generateGroupSequence('mix', experimentConfig.imagesPerGroup); // 默认为混合组
             break;
     }
-}
-
-/**
- * 为指定组和类型生成图片序列
- */
-function generateGroupSequence(type, count) {
-    experimentState.imagesSequence = generateImagesForTypes(type, count);
-    shuffleArray(experimentState.imagesSequence);
 }
 
 /**
@@ -340,6 +352,9 @@ function showRatingForm() {
     // 重置表单
     document.getElementById('image-rating').reset();
 
+    // 确保在显示表单时，提交按钮是禁用的
+    updateSubmitButtonState();
+
     // 隐藏评分计时器
     document.getElementById('rating-timer').style.display = 'none';
 }
@@ -376,22 +391,20 @@ function submitAttentionCheck() {
 
     const answerValue = selectedAnswer.value;
 
-    // 获取当前图片 (Index has already been incremented by submitRating)
-    // We actually need the image that triggered the attention check, which is at index - 1
-    const attentionImageIndex = experimentState.currentSequenceIndex - 1; // Correct index for the image just rated
+    // 获取当前图片
+    const attentionImageIndex = experimentState.currentSequenceIndex - 1;
     if (attentionImageIndex < 0 || attentionImageIndex >= experimentState.imagesSequence.length) {
         console.error('注意力检测错误：无法找到触发检测的图片索引');
-        // Attempt to recover gracefully
-        showAttentionBreak(); // Proceed to break, maybe log error server-side later
+        showAttentionBreak();
         return;
     }
-    const currentImage = experimentState.imagesSequence[attentionImageIndex]; // Get the correct image
+    const currentImage = experimentState.imagesSequence[attentionImageIndex];
 
     // 添加安全检查，确保currentImage存在且具有correctAnswer属性
-    if (!currentImage || currentImage.type !== 'attention') { // Double-check it's an attention image
+    if (!currentImage || currentImage.type !== 'attention') {
         console.error('注意力检测错误：当前图片对象无效或类型不匹配', currentImage);
         // 继续实验流程，跳过此次检测
-        showAttentionBreak(); // Proceed to break
+        showAttentionBreak();
         return;
     }
 
@@ -402,7 +415,7 @@ function submitAttentionCheck() {
     const attentionResult = {
         userId: experimentState.userId,
         timestamp: new Date().toISOString(),
-        imageId: currentImage.id, // Use the correct image ID
+        imageId: currentImage.id,
         userAnswer: answerValue,
         correctAnswer: correctAnswer,
         isCorrect: answerValue === correctAnswer
@@ -489,6 +502,30 @@ function getSelectedRadioValue(name) {
 }
 
 /**
+ * 检查所有评分项是否都已选择
+ */
+function checkRatingsComplete() {
+    // 确保这里的名称与 HTML 表单中的 name 属性完全一致
+    const ratingFields = ['moral_disgust', 'technical_flaws', 'originality', 'emotional', 'artist_value', 'visual_appeal'];
+    for (const field of ratingFields) {
+        if (!getSelectedRadioValue(field)) {
+            return false; // 只要有一个未选，就返回 false
+        }
+    }
+    return true; // 所有项都已选择
+}
+
+/**
+ * 更新提交按钮的禁用状态
+ */
+function updateSubmitButtonState() {
+    const isComplete = checkRatingsComplete();
+    if (elements.submitRatingButton) {
+        elements.submitRatingButton.disabled = !isComplete;
+    }
+}
+
+/**
  * 显示休息环节
  */
 function showRest() {
@@ -516,36 +553,11 @@ function showRest() {
  * 提交评分
  */
 function submitRating() {
-    // 清除之前的错误提示信息
+    // 清除之前的错误提示信息 (可选，因为按钮状态已控制)
     document.querySelectorAll('.error-message').forEach(el => el.remove());
 
-    // 检查所有评分是否已选择
-    const ratingFields = ['moral_disgust', 'technical_flaws', 'originality', 'emotional', 'visual_appeal'];
-    let incomplete = false;
-    ratingFields.forEach(field => {
-        if (!getSelectedRadioValue(field)) {
-            incomplete = true;
-            // 找到对应评分问题的容器
-            const container = document.querySelector(`input[name="${field}"]`).closest('.rating-question');
-            // 创建错误提示元素
-            const errorEl = document.createElement('div');
-            errorEl.className = 'error-message';
-            errorEl.style.color = 'red';
-            errorEl.style.fontSize = '0.9em';
-            errorEl.style.marginTop = '4px';
-            errorEl.textContent = '请完整选择此项评分';
-            // 避免重复添加错误消息
-            if (!container.querySelector('.error-message')) {
-                container.appendChild(errorEl);
-            }
-        }
-    });
-
-    // 如果有未完成的评分，弹出提示并返回
-    if (incomplete) {
-        alert('请填写所有评分选项后再提交！');
-        return;
-    }
+    // 由于按钮状态已控制，理论上到达这里时所有项都已选择
+    // 可以移除这里的显式检查和 alert
 
     // 清除评分计时器
     if (window.ratingTimerInterval) {
@@ -557,21 +569,21 @@ function submitRating() {
     const userData = JSON.parse(localStorage.getItem('userData')) || {}; // 获取最新的userData
     const experimentGroupInfo = userData.experimentGroup || { groupName: '未知', groupType: -1, isArtBackground: undefined }; // 安全获取，提供默认值
 
-    // 收集评分
+    // 收集评分 (确保包含所有字段，特别是 artist_value)
     const rating = {
         userId: experimentState.userId,
         imageId: currentImage.id,
         timestamp: new Date().toISOString(),
-        // 使用存储的组名和类型
         groupName: experimentGroupInfo.groupName,
         groupType: experimentGroupInfo.groupType,
-        isArtBackground: experimentGroupInfo.isArtBackground, // 添加艺术背景信息
+        isArtBackground: experimentGroupInfo.isArtBackground,
         imageType: currentImage.type,
         imageCategory: currentImage.category,
         moralDisgust: parseInt(getSelectedRadioValue('moral_disgust')) || 0,
         technicalFlaws: parseInt(getSelectedRadioValue('technical_flaws')) || 0,
         originality: parseInt(getSelectedRadioValue('originality')) || 0,
         emotional: parseInt(getSelectedRadioValue('emotional')) || 0,
+        artistValue: parseInt(getSelectedRadioValue('artist_value')) || 0, // 确保此项存在
         visualAppeal: parseInt(getSelectedRadioValue('visual_appeal')) || 0,
         deviceType: detectDeviceType()
     };
@@ -598,12 +610,13 @@ function submitRating() {
 
     // 根据图片类型决定下一步
     if (currentImage.type === 'attention') {
+        // 注意力检测图片后应该显示注意力检测问题，而不是直接休息
         showAttentionCheck(currentImage);
     } else {
+        // 普通图片评分后显示短暂休息
         showRest();
     }
 }
-
 
 /**
  * 检测设备类型
@@ -658,11 +671,11 @@ function finishExperiment() {
     userData.experimentData.attentionResults = experimentState.attentionResults;
     userData.experimentData.experimentEndTime = new Date().toISOString();
 
+    // 确保用户ID一致
+    userData.userId = experimentState.userId;
+
     // 保存到localStorage
     localStorage.setItem('userData', JSON.stringify(userData));
-
-    // 自动保存数据为JSON文件
-    exportAsJson(userData);
 
     // 尝试上传数据到服务器
     try {
@@ -726,41 +739,4 @@ function uploadExperimentData(userData) {
         .catch(error => {
             console.error('数据上传失败:', error);
         });
-}
-
-// 修改 finishExperiment 函数
-function finishExperiment() {
-    console.log('实验结束，准备跳转到反馈页面');
-
-    // 保存所有数据
-    const userData = JSON.parse(localStorage.getItem('userData')) || {};
-
-    // 确保实验数据对象存在
-    if (!userData.experimentData) {
-        userData.experimentData = {};
-    }
-
-    // 将当前实验状态中的数据合并到userData中
-    userData.experimentData.ratings = experimentState.ratings;
-    userData.experimentData.attentionResults = experimentState.attentionResults;
-    userData.experimentData.experimentEndTime = new Date().toISOString();
-
-    // 确保用户ID一致
-    userData.userId = experimentState.userId;
-
-    // 保存到localStorage
-    localStorage.setItem('userData', JSON.stringify(userData));
-
-    // 尝试上传数据到服务器
-    try {
-        uploadExperimentData(userData);
-    } catch (error) {
-        console.error('上传数据失败:', error);
-    }
-
-    // 确保在所有处理完成后跳转
-    setTimeout(() => {
-        console.log('正在跳转到反馈页面...');
-        window.location.href = 'feedback.html';
-    }, 500);
 }
