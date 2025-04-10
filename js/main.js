@@ -11,6 +11,12 @@ let userData = {
 
 // 当DOM加载完成后执行
 document.addEventListener('DOMContentLoaded', () => {
+    // 首先从localStorage加载现有的userData
+    const savedData = localStorage.getItem('userData');
+    if (savedData) {
+        userData = JSON.parse(savedData);
+    }
+
     // 检查当前页面并初始化相应功能
     const currentPage = window.location.pathname.split('/').pop();
 
@@ -46,6 +52,10 @@ function initWelcomePage() {
 
         // 开始按钮点击事件
         startButton.addEventListener('click', () => {
+            // 如果用户ID不存在，生成一个
+            if (!userData.userId) {
+                userData.userId = generateUserId();
+            }
             // 记录实验开始时间
             userData.experimentStartTime = new Date().toISOString();
             // 保存到localStorage
@@ -57,6 +67,13 @@ function initWelcomePage() {
 }
 
 /**
+ * 生成唯一用户ID - 保持与experiment.js中相同的生成方式
+ */
+function generateUserId() {
+    return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+/**
  * 初始化基本信息页面
  */
 function initBasicInfoPage() {
@@ -65,7 +82,7 @@ function initBasicInfoPage() {
     if (startExperimentBtn) {
         startExperimentBtn.addEventListener('click', () => {
             // 跳转到实验页面
-            window.location.href = 'Information-Collection.html';
+            window.location.href = 'experiment.html';
         });
     }
 }
@@ -74,19 +91,10 @@ function initBasicInfoPage() {
  * 初始化反馈页面
  */
 function initFeedbackPage() {
-    // 从localStorage加载用户数据
-    const savedData = localStorage.getItem('userData');
-    if (savedData) {
-        userData = JSON.parse(savedData);
-    }
-
-    // 记录实验结束时间
-    userData.experimentEndTime = new Date().toISOString();
-
     // 计算实验持续时间
     if (userData.experimentStartTime) {
         const startTime = new Date(userData.experimentStartTime);
-        const endTime = new Date(userData.experimentEndTime);
+        const endTime = new Date(userData.experimentEndTime || new Date());
         const durationInMinutes = Math.round((endTime - startTime) / (1000 * 60));
 
         // 如果存在实验时长显示元素，则更新其内容
@@ -101,26 +109,30 @@ function initFeedbackPage() {
     if (feedbackForm) {
         feedbackForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             // 收集表单数据
             const formData = new FormData(feedbackForm);
             userData.feedback = {
                 experience: formData.get('experience'),
                 difficulty: formData.get('difficulty'),
+                ai_art_experience: formData.get('ai_art_experience'),
                 llm_opinion: formData.get('llm_opinion'),
                 comments: formData.get('comments'),
                 submittedAt: new Date().toISOString()
             };
-            
+
+            // 确保使用相同的用户ID
+            userData.experimentEndTime = new Date().toISOString();
+
             // 保存到localStorage
             localStorage.setItem('userData', JSON.stringify(userData));
-            
+
             // 显示提交中的消息
             const submitButton = feedbackForm.querySelector('button[type="submit"]');
             const originalText = submitButton.textContent;
             submitButton.textContent = '提交中...';
             submitButton.disabled = true;
-            
+
             // 尝试上传数据到服务器
             try {
                 const response = await fetch('/save-feedback', {
@@ -129,15 +141,16 @@ function initFeedbackPage() {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        userId: userData.basicInfo?.userId || `user_${Date.now()}`,
+                        userId: userData.userId, // 使用统一的用户ID
                         feedback: userData.feedback
                     })
                 });
-                
+
                 if (response.ok) {
                     alert('感谢您的反馈！数据已成功提交。');
-                    // 可以选择添加重定向
-                    // window.location.href = 'thank-you.html';
+                    // 显示感谢信息
+                    document.getElementById('feedback-container').style.display = 'none';
+                    document.getElementById('thank-you-message').classList.remove('hidden');
                 } else {
                     throw new Error('服务器响应错误');
                 }
