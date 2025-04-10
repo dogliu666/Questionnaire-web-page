@@ -13,6 +13,11 @@ app = Flask(__name__, static_folder='.')
 if not os.path.exists('result'):
     os.makedirs('result')
 
+# 确保data/feedback目录存在
+feedback_dir = os.path.join('data', 'feedback')
+if not os.path.exists(feedback_dir):
+    os.makedirs(feedback_dir)
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
@@ -49,18 +54,14 @@ def save_feedback():
         # 获取POST请求中的JSON数据
         data = request.json
         
-        # 确保数据目录存在
-        feedback_dir = os.path.join('data', 'feedback')
-        if not os.path.exists(feedback_dir):
-            os.makedirs(feedback_dir)
-        
         # 生成文件名（使用用户ID和时间戳）
         user_id = data.get('userId', 'unknown')
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
         filename = f"feedback_{user_id}_{timestamp}.json"
         
-        # 保存JSON文件
-        with open(os.path.join(feedback_dir, filename), 'w', encoding='utf-8') as f:
+        # 保存JSON文件到result目录
+        result_filepath = os.path.join('result', filename)
+        with open(result_filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         
         # 更新或创建Excel文件
@@ -74,16 +75,19 @@ def save_feedback():
 
 def update_feedback_excel(data):
     """将反馈数据添加到Excel文件中"""
-    excel_path = os.path.join('result', 'feedback_data.xlsx')
+    excel_path = os.path.join('data', 'feedback', 'feedback_data.xlsx')
     
     # 创建数据框
     feedback = data.get('feedback', {})
     user_data = {
         'userId': data.get('userId'),
+        'experimentDuration': data.get('experimentDuration', ''),
         'experience': feedback.get('experience'),
         'difficulty': feedback.get('difficulty'),
-        'comments': feedback.get('comments'),
-        'submittedAt': feedback.get('submittedAt')
+        'ai_art_experience': feedback.get('ai_art_experience'),
+        'llm_opinion': feedback.get('llm_opinion', ''),
+        'comments': feedback.get('comments', ''),
+        'submittedAt': data.get('submittedAt', datetime.now().isoformat())
     }
     
     df_new = pd.DataFrame([user_data])
@@ -111,4 +115,6 @@ def process_excel():
         print(f"处理Excel时出错: {str(e)}")
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8080)
+    import waitress
+    print("生产服务器正在运行，访问 http://localhost:5050")
+    waitress.serve(app, host='0.0.0.0', port=5050)
