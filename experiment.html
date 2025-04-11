@@ -51,8 +51,10 @@
                 <span id="progress-text">3/5</span>
             </div>
             <div class="experiment-info">
+                <span id="group-info">组别: 加载中...</span>
                 <span id="image-counter">图片: 1/5</span>
             </div>
+
         </header>
 
         <!-- 图片显示区域 -->
@@ -63,6 +65,7 @@
             </div>
             <div class="image-container">
                 <img id="stimulus-image" src="" alt="实验图片">
+                <div id="source-label"></div>
             </div>
             <div id="image-timer" class="timer">10</div>
         </div>
@@ -73,7 +76,9 @@
                 <div class="rating-timer-container">
                     <div id="rating-timer" class="timer">15</div>
                 </div>
-            <div style="text-align: center;"><h3>根据你的第一感受进行回答<br>（1 = 完全不同意，7 = 完全同意）</h3></div>
+                <div style="text-align: center;">
+                    <h3>根据你的第一感受进行回答<br>（1 = 完全不同意，7 = 完全同意）</h3>
+                </div>
                 <div class="rating-question">
                     <p style="text-align: center;">我觉得这幅作品表达了真实且有感染力的情感</p>
                     <div class="likert-scale">
