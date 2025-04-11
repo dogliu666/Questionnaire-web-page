@@ -82,6 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 使用已分配或新分配的组别
     experimentState.currentGroup = userData.experimentGroup.groupType;
+    
+    // 更新组别显示信息
+    const groupInfoElement = document.getElementById('group-info');
+    if (groupInfoElement) {
+        groupInfoElement.textContent = `组别: ${userData.experimentGroup.groupName}`;
+    }
 
     // 初始化随机图片序列 (基于 groupType)
     generateImageSequence();
@@ -264,6 +270,12 @@ function updateCounters() {
     // 更新进度文本
     document.getElementById('progress-text').textContent = `${currentIndex} / ${totalImages}`;
     document.getElementById('image-counter').textContent = `图片: ${currentIndex}/${totalImages}`;
+    
+    // 更新组别信息
+    const userData = JSON.parse(localStorage.getItem('userData')) || {};
+    if (userData.experimentGroup && userData.experimentGroup.groupName) {
+        document.getElementById('group-info').textContent = `组别: ${userData.experimentGroup.groupName}`;
+    }
 }
 
 /**
