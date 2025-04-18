@@ -58,25 +58,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 分配实验组 (如果尚未分配)
     if (!userData.experimentGroup) {
-        // 根据艺术背景分为艺术组和普通组
+        // 根据艺术背景判断
         const isArtBackground = isArtisticBackground(userData);
-
-        // 随机分配到 AI组(0), 人类组(1), 或 混合组(2)
-        const groupAssignment = Math.floor(Math.random() * 3); // 0, 1, or 2
-
+    
+        // 手动分配组别： 0=AI组, 1=人类组, 2=混合组, 若注释掉则随机分配
+        const overrideGroup = 1;
+    
+        // 优先使用手动设置，否则随机分配
+        const groupAssignment = typeof overrideGroup !== 'undefined'
+            ? overrideGroup
+            : Math.floor(Math.random() * experimentConfig.totalGroups);
+    
         let groupName = '';
         switch (groupAssignment) {
             case 0: groupName = 'AI组'; break;
             case 1: groupName = '人类组'; break;
             case 2: groupName = '混合组'; break;
         }
-
+    
         userData.experimentGroup = {
             isArtBackground: isArtBackground,
-            groupType: groupAssignment, // 0=AI, 1=人类, 2=混合
-            groupName: groupName // 添加组名以提高可读性
+            groupType: groupAssignment,
+            groupName: groupName
         };
-
         localStorage.setItem('userData', JSON.stringify(userData));
     }
 
