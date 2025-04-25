@@ -1,5 +1,5 @@
 ```
-pip install pandas openpyxl flask watchdog gunicorn
+pip install flask pandas openpyxl waitress
 ```
 
 ```
