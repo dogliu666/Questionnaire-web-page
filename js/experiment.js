@@ -25,6 +25,22 @@ let experimentState = {
     needAttentionCheck: false // 是否需要进行注意力检测
 };
 
+// DOM元素引用
+const elements = {
+    fixationPoint: document.getElementById('fixation-point'),
+    imageDisplay: document.getElementById('image-display'),
+    ratingForm: document.getElementById('image-rating'),
+    attentionCheck: document.getElementById('attention-check'),
+    stimulusImage: document.getElementById('stimulus-image'),
+    imageTimer: document.getElementById('image-timer'),
+    ratingTimer: document.getElementById('rating-timer'),
+    progressBar: document.getElementById('overall-progress'),
+    progressText: document.getElementById('progress-text'),
+    groupCounter: document.getElementById('group-counter'),
+    imageCounter: document.getElementById('image-counter'),
+    submitRatingButton: document.getElementById('submit-rating') // 添加提交按钮引用
+};
+
 // 计时器ID
 let imageTimerInterval = null;
 let ratingTimerInterval = null;
@@ -44,20 +60,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!userData.experimentGroup) {
         // 根据艺术背景分为艺术组和普通组
         const isArtBackground = isArtisticBackground(userData);
-    
+
         // 所有用户都分配到混合组明示组
         userData.experimentGroup = {
             isArtBackground: isArtBackground,
             groupType: 0, // 混合组明示组
             groupName: '混合组明示组'
         };
-    
+
         localStorage.setItem('userData', JSON.stringify(userData));
     }
-    
+
     // 使用已分配或新分配的组别
     experimentState.currentGroup = 0; // 固定为混合组明示组
-    
+
     // 更新页面上的组别信息显示
     const groupInfoElement = document.getElementById('group-info');
     if (groupInfoElement) {
@@ -73,9 +89,28 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCounters();
     startTrial();
 
+    // 获取评分表单和提交按钮的引用 (如果尚未在 elements 中定义)
+    const ratingForm = document.getElementById('image-rating');
+    const submitRatingButton = document.getElementById('submit-rating');
+
+    // 初始化时禁用提交按钮
+    if (submitRatingButton) {
+        submitRatingButton.disabled = true;
+    }
+
+    // 为评分表单添加 'change' 事件监听器，当任何单选按钮改变时触发
+    if (ratingForm) {
+        ratingForm.addEventListener('change', updateSubmitButtonState);
+    }
+
     // 添加表单提交事件
     document.getElementById('image-rating').addEventListener('submit', function (e) {
         e.preventDefault();
+        // 在提交时再次检查（虽然按钮状态应已阻止）
+        if (!checkRatingsComplete()) {
+            console.warn("尝试提交未完成的评分。");
+            return;
+        }
         submitRating();
     });
 
@@ -128,16 +163,16 @@ function generateImageSequence() {
 function generateMixedExplicitSequence(count) {
     // 确定每种类型(AI/人类)需要的图片数量
     const countPerType = Math.floor(count / 2);
-    
+
     // 生成AI图片
     const aiImages = generateImagesForSource('ai', countPerType);
-    
+
     // 生成人类图片
     const humanImages = generateImagesForSource('human', countPerType);
-    
+
     // 合并图片列表
     experimentState.imagesSequence = [...aiImages, ...humanImages];
-    
+
     // 随机打乱顺序
     shuffleArray(experimentState.imagesSequence);
 }
@@ -179,22 +214,42 @@ function generateImagesForSource(source, count) {
  * 替换注意力检测图片
  */
 function insertAttentionChecks() {
-    // 每隔5张替换成注意力检测图
-    for (let i = 4; i < experimentState.imagesSequence.length; i += 5) {
-        const randomCategoryIndex = Math.floor(Math.random() * experimentConfig.imageCategories.length);
-        const selectedCategory = experimentConfig.imageCategories[randomCategoryIndex];
-        const randomImageNumber = Math.floor(Math.random() * experimentConfig.imagesPerCategory) + 1;
-        const imagePath = `${experimentConfig.imageBasePath}attention/${selectedCategory}/${randomImageNumber}.jpg`;
+    // 定义注意力检测图片的文件名列表
+    const attentionImageFiles = ['building.jpg', 'forest.jpg', 'mountain.jpg', 'sky.jpg'];
+    // 随机打乱注意力图片顺序，确保不重复抽取
+    shuffleArray(attentionImageFiles);
+
+    let attentionImageIndex = 0; // 用于追踪当前使用的注意力图片
+
+    // 每隔 attentionCheckFrequency 张图片插入一张注意力检测图
+    for (let i = experimentConfig.attentionCheckFrequency - 1; i < experimentState.imagesSequence.length; i += experimentConfig.attentionCheckFrequency) {
+        // 如果注意力图片用完，则从头开始循环（理论上不应发生，除非检测次数多于图片数）
+        if (attentionImageIndex >= attentionImageFiles.length) {
+            console.warn("注意力检测图片数量不足，开始重复使用。");
+            attentionImageIndex = 0;
+        }
+
+        const filename = attentionImageFiles[attentionImageIndex];
+        // 从文件名中提取类别（去掉 .jpg 后缀）
+        const category = filename.substring(0, filename.lastIndexOf('.'));
+        const imagePath = `${experimentConfig.imageBasePath}attention/${filename}`;
 
         const attentionImage = {
-            id: `attention_check_${(i / 5) + 1}`,
+            id: `attention_check_${Math.floor(i / experimentConfig.attentionCheckFrequency) + 1}`,
             path: imagePath,
             type: 'attention',
-            category: selectedCategory,
-            correctAnswer: selectedCategory // 确保这里设置了正确答案
+            category: category, // 使用从文件名提取的类别
+            correctAnswer: category // 正确答案是图片本身的类别
         };
-        // 替换第i张图片为注意力检测图
-        experimentState.imagesSequence[i] = attentionImage;
+
+        // 替换序列中的图片为注意力检测图
+        // 注意：索引 i 是基于0的，所以第5张图的索引是4
+        if (i < experimentState.imagesSequence.length) {
+            experimentState.imagesSequence[i] = attentionImage;
+            attentionImageIndex++; // 移动到下一个注意力图片
+        } else {
+            console.warn(`尝试在索引 ${i} 处插入注意力检测，但序列长度为 ${experimentState.imagesSequence.length}`);
+        }
     }
 }
 
@@ -273,7 +328,7 @@ function showImage() {
     document.getElementById('stimulus-image').style.display = 'block';
     document.getElementById('image-timer').style.display = 'block';
     document.getElementById('stimulus-image').src = currentImage.path;
-    
+
     // 显示创作者信息（AI创作或人类创作）
     const sourceLabel = document.getElementById('source-label');
     if (sourceLabel) {
@@ -314,8 +369,13 @@ function showImage() {
 
         if (timeLeft <= 0 || elapsedTime >= experimentConfig.imageDuration) {
             clearInterval(window.imageTimerInterval);
-            // 图片展示结束，直接进入评分问卷
-            showRatingForm();
+            // 图片展示结束，根据图片类型决定下一步
+            const nextImage = experimentState.imagesSequence[experimentState.currentSequenceIndex]; // 获取当前图片信息
+            if (nextImage && nextImage.type === 'attention') {
+                showAttentionCheck(nextImage); // 如果是注意力检测图片，显示检测问题
+            } else {
+                showRatingForm(); // 否则显示评分表单
+            }
         }
     }, 200);
 }
@@ -331,6 +391,9 @@ function showRatingForm() {
 
     // 重置表单
     document.getElementById('image-rating').reset();
+
+    // 确保在显示表单时，提交按钮是禁用的
+    updateSubmitButtonState();
 
     // 隐藏评分计时器
     document.getElementById('rating-timer').style.display = 'none';
@@ -368,20 +431,15 @@ function submitAttentionCheck() {
 
     const answerValue = selectedAnswer.value;
 
-    // 获取当前图片
-    const attentionImageIndex = experimentState.currentSequenceIndex - 1;
-    if (attentionImageIndex < 0 || attentionImageIndex >= experimentState.imagesSequence.length) {
-        console.error('注意力检测错误：无法找到触发检测的图片索引');
-        showAttentionBreak();
-        return;
-    }
-    const currentImage = experimentState.imagesSequence[attentionImageIndex];
+    // 获取当前图片 (直接使用 currentSequenceIndex)
+    const currentImage = experimentState.imagesSequence[experimentState.currentSequenceIndex];
 
-    // 添加安全检查，确保currentImage存在且具有correctAnswer属性
+    // 添加安全检查，确保currentImage存在且类型为 'attention'
     if (!currentImage || currentImage.type !== 'attention') {
         console.error('注意力检测错误：当前图片对象无效或类型不匹配', currentImage);
-        // 继续实验流程，跳过此次检测
-        showAttentionBreak();
+        // 尝试跳过并进入休息，然后到下一试次
+        experimentState.currentSequenceIndex++; // 手动增加索引以尝试跳过
+        showAttentionBreak(); // 显示休息界面
         return;
     }
 
@@ -412,13 +470,8 @@ function submitAttentionCheck() {
     userData.experimentData.attentionResults.push(attentionResult);
     localStorage.setItem('userData', JSON.stringify(userData));
 
-    // 检查是否完成所有图片 (Check using the already incremented index)
-    if (experimentState.currentSequenceIndex >= experimentState.imagesSequence.length) {
-        finishExperiment();
-    } else {
-        // 注意力检测完成后进入休息环节
-        showAttentionBreak();
-    }
+    // 注意力检测完成后进入休息环节 (不再在这里检查是否完成实验)
+    showAttentionBreak();
 }
 
 /**
@@ -455,18 +508,21 @@ function showAttentionBreak() {
 }
 
 /**
- * 结束休息阶段，转至评分表单
+ * 结束休息阶段，转至下一个试次或结束实验
  */
 function finishBreak() {
     document.getElementById('break-screen').style.display = 'none';
+
+    // 在检查完成和开始下一试次之前，增加索引
+    experimentState.currentSequenceIndex++;
 
     // 检查是否已完成所有图片
     if (experimentState.currentSequenceIndex >= experimentState.imagesSequence.length) {
         console.log('所有图片已显示完成，结束实验');
         finishExperiment();
     } else {
-        console.log('继续下一张图片, 索引:', experimentState.currentSequenceIndex);
-        startTrial();
+        console.log('休息结束，继续下一张图片, 索引:', experimentState.currentSequenceIndex);
+        startTrial(); // 开始下一个试次
     }
 }
 
@@ -476,6 +532,30 @@ function finishBreak() {
 function getSelectedRadioValue(name) {
     const selected = document.querySelector(`input[name="${name}"]:checked`);
     return selected ? selected.value : '';
+}
+
+/**
+ * 检查所有评分项是否都已选择
+ */
+function checkRatingsComplete() {
+    // 确保这里的名称与 HTML 表单中的 name 属性完全一致
+    const ratingFields = ['moral_disgust', 'technical_flaws', 'originality', 'emotional', 'artist_value', 'visual_appeal'];
+    for (const field of ratingFields) {
+        if (!getSelectedRadioValue(field)) {
+            return false; // 只要有一个未选，就返回 false
+        }
+    }
+    return true; // 所有项都已选择
+}
+
+/**
+ * 更新提交按钮的禁用状态
+ */
+function updateSubmitButtonState() {
+    const isComplete = checkRatingsComplete();
+    if (elements.submitRatingButton) {
+        elements.submitRatingButton.disabled = !isComplete;
+    }
 }
 
 /**
@@ -509,33 +589,7 @@ function submitRating() {
     // 清除之前的错误提示信息
     document.querySelectorAll('.error-message').forEach(el => el.remove());
 
-    // 检查所有评分是否已选择
-    const ratingFields = ['moral_disgust', 'technical_flaws', 'originality', 'emotional', 'visual_appeal'];
-    let incomplete = false;
-    ratingFields.forEach(field => {
-        if (!getSelectedRadioValue(field)) {
-            incomplete = true;
-            // 找到对应评分问题的容器
-            const container = document.querySelector(`input[name="${field}"]`).closest('.rating-question');
-            // 创建错误提示元素
-            const errorEl = document.createElement('div');
-            errorEl.className = 'error-message';
-            errorEl.style.color = 'red';
-            errorEl.style.fontSize = '0.9em';
-            errorEl.style.marginTop = '4px';
-            errorEl.textContent = '请完整选择此项评分';
-            // 避免重复添加错误消息
-            if (!container.querySelector('.error-message')) {
-                container.appendChild(errorEl);
-            }
-        }
-    });
 
-    // 如果有未完成的评分，弹出提示并返回
-    if (incomplete) {
-        alert('请填写所有评分选项后再提交！');
-        return;
-    }
 
     // 清除评分计时器
     if (window.ratingTimerInterval) {
@@ -544,26 +598,37 @@ function submitRating() {
 
     // 获取当前图片和实验组信息
     const currentImage = experimentState.imagesSequence[experimentState.currentSequenceIndex];
-   
-    // 收集评分
+    // 安全检查：确保当前图片不是注意力检测图片（虽然理论上不应发生）
+    if (!currentImage || currentImage.type === 'attention') {
+        console.error("评分提交错误：当前图片无效或为注意力检测图片。");
+        // 尝试恢复或跳过
+        experimentState.currentSequenceIndex++;
+        showRest(); // 显示休息并尝试进入下一试次
+        return;
+    }
+
+    const userData = JSON.parse(localStorage.getItem('userData')) || {}; // 获取最新的userData
+    const experimentGroupInfo = userData.experimentGroup || { groupName: '未知', groupType: -1, isArtBackground: undefined }; // 安全获取，提供默认值
+
+    // 收集评分 (确保包含所有字段，特别是 artist_value)
     const rating = {
         userId: experimentState.userId,
         imageId: currentImage.id,
         timestamp: new Date().toISOString(),
-        groupName: '混合组明示组',
-        groupType: 0,
+        groupName: experimentGroupInfo.groupName,
+        groupType: experimentGroupInfo.groupType,
         isArtBackground: experimentGroupInfo.isArtBackground,
-        imageType: currentImage.type, // 这里的type现在代表'ai'或'human'
-        imageSource: currentImage.source, // 添加明确的来源标识
-        sourceLabel: currentImage.sourceLabel, // 添加显示给用户的标签
+        imageType: currentImage.type,
         imageCategory: currentImage.category,
         moralDisgust: parseInt(getSelectedRadioValue('moral_disgust')) || 0,
         technicalFlaws: parseInt(getSelectedRadioValue('technical_flaws')) || 0,
         originality: parseInt(getSelectedRadioValue('originality')) || 0,
         emotional: parseInt(getSelectedRadioValue('emotional')) || 0,
+        artistValue: parseInt(getSelectedRadioValue('artist_value')) || 0, // 确保此项存在
         visualAppeal: parseInt(getSelectedRadioValue('visual_appeal')) || 0,
         deviceType: detectDeviceType()
     };
+
 
     // 保存评分
     experimentState.ratings.push(rating);
@@ -585,12 +650,8 @@ function submitRating() {
     // 更新图片序列索引
     experimentState.currentSequenceIndex++;
 
-    // 根据图片类型决定下一步
-    if (currentImage.type === 'attention') {
-        showAttentionCheck(currentImage);
-    } else {
-        showRest();
-    }
+    // 普通图片评分后显示短暂休息
+    showRest();
 }
 
 
@@ -647,6 +708,9 @@ function finishExperiment() {
     userData.experimentData.attentionResults = experimentState.attentionResults;
     userData.experimentData.experimentEndTime = new Date().toISOString();
 
+    // 确保用户ID一致
+    userData.userId = experimentState.userId;
+    
     // 保存到localStorage
     localStorage.setItem('userData', JSON.stringify(userData));
 
