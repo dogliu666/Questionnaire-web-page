@@ -8,7 +8,7 @@ const experimentConfig = {
     imageBasePath: 'images/', // 图片文件夹路径
     imageCategories: ['people', 'objects', 'food', 'buildings', 'landscape'], // 图片类别
     attentionCheckFrequency: 5, // 每5张图片进行一次注意力检测
-    imagesPerCategory: 4 // 每类别图片数量
+    imagesPerCategory: 2 // 每类别图片数量
 };
 
 // 实验状态
