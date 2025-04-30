@@ -219,38 +219,34 @@ function insertAttentionChecks() {
     // 随机打乱注意力图片顺序，确保不重复抽取
     shuffleArray(attentionImageFiles);
 
-    let attentionImageIndex = 0; // 用于追踪当前使用的注意力图片
+    // 把原始测试图序列保存一份
+    const baseSeq = experimentState.imagesSequence;
+    const newSeq = [];
+    let attentionImageIndex = 0;
 
-    // 每隔 attentionCheckFrequency 张图片插入一张注意力检测图
-    for (let i = experimentConfig.attentionCheckFrequency - 1; i < experimentState.imagesSequence.length; i += experimentConfig.attentionCheckFrequency) {
-        // 如果注意力图片用完，则从头开始循环（理论上不应发生，除非检测次数多于图片数）
-        if (attentionImageIndex >= attentionImageFiles.length) {
-            console.warn("注意力检测图片数量不足，开始重复使用。");
-            attentionImageIndex = 0;
-        }
-
-        const filename = attentionImageFiles[attentionImageIndex];
-        // 从文件名中提取类别（去掉 .jpg 后缀）
-        const category = filename.substring(0, filename.lastIndexOf('.'));
-        const imagePath = `${experimentConfig.imageBasePath}attention/${filename}`;
-
-        const attentionImage = {
-            id: `attention_check_${Math.floor(i / experimentConfig.attentionCheckFrequency) + 1}`,
-            path: imagePath,
-            type: 'attention',
-            category: category, // 使用从文件名提取的类别
-            correctAnswer: category // 正确答案是图片本身的类别
-        };
-
-        // 替换序列中的图片为注意力检测图
-        // 注意：索引 i 是基于0的，所以第5张图的索引是4
-        if (i < experimentState.imagesSequence.length) {
-            experimentState.imagesSequence[i] = attentionImage;
-            attentionImageIndex++; // 移动到下一个注意力图片
-        } else {
-            console.warn(`尝试在索引 ${i} 处插入注意力检测，但序列长度为 ${experimentState.imagesSequence.length}`);
+    // 遍历每张测试图，插入后检测图
+    for (let i = 0; i < baseSeq.length; i++) {
+        // 先放入一张测试图
+        newSeq.push(baseSeq[i]);
+        // 每隔 attentionCheckFrequency 张测试图，插入一张注意力检测图
+        if ((i + 1) % experimentConfig.attentionCheckFrequency === 0
+            && attentionImageIndex < attentionImageFiles.length) {
+            const filename = attentionImageFiles[attentionImageIndex++];
+            const category = filename.substring(0, filename.lastIndexOf('.'));
+            const imagePath = `${experimentConfig.imageBasePath}attention/${filename}`;
+            const attentionImage = {
+                id: `attention_check_${attentionImageIndex}`,
+                path: imagePath,
+                type: 'attention',
+                category: category,
+                correctAnswer: category
+            };
+            newSeq.push(attentionImage);
         }
     }
+
+    // 更新最终序列：20 张测试 + 4 张注意力检测 = 24 张
+    experimentState.imagesSequence = newSeq;
 }
 
 /**
