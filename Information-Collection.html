@@ -127,7 +127,7 @@
 
             // 添加表单提交事件
             form.addEventListener('submit', function (e) {
-                e.preventDefault(); // 阻止表单默认提交
+                e.preventDefault();
 
                 // 收集基本信息
                 const formData = new FormData(form);
@@ -138,14 +138,7 @@
                     basicInfo[key] = value;
                 }
 
-                // 从localStorage获取现有用户数据，如果不存在则创建新对象
-                const userData = JSON.parse(localStorage.getItem('userData')) || {};
-
-                // 保存基本信息
                 userData.basicInfo = basicInfo;
-
-                // 保存到localStorage
-                localStorage.setItem('userData', JSON.stringify(userData));
 
                 // 跳转到实验说明页面
                 window.location.href = 'basic-info.html';
