@@ -7,40 +7,6 @@
     <title>AI绘画负性评价原因探究 | 图片评分</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="favicon.ico">
-    <style>
-        /* 针对此页面的特殊样式 */
-        .rating-question {
-            margin-bottom: 1.5rem;
-            padding: 15px;
-            background-color: var(--light-gray);
-            border-radius: 8px;
-        }
-
-        /* 小屏幕设备适配 */
-        @media (max-width: 768px) {
-            .rating-question .likert-scale {
-                flex-direction: row;
-                align-items: center;
-            }
-
-            /* 确保文本和选项在小屏幕上仍然清晰可见 */
-            .likert-scale span {
-                font-size: 0.8rem;
-                text-align: center;
-                min-width: 60px;
-            }
-
-            /* 调整注意力检测问题在小屏幕上的显示 */
-            .radio-options {
-                display: flex;
-                flex-direction: column;
-            }
-
-            .radio-item {
-                margin: 5px 0;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -246,24 +212,20 @@
                     <p>图片中主要呈现以下哪种元素？</p>
                     <div class="radio-options">
                         <div class="radio-item">
-                            <input type="radio" id="attention_1" name="attention" value="people" required>
-                            <label for="attention_1">人物</label>
+                            <input type="radio" id="attention_1" name="attention" value="building" required>
+                            <label for="attention_1">建筑</label>
                         </div>
                         <div class="radio-item">
-                            <input type="radio" id="attention_2" name="attention" value="objects">
-                            <label for="attention_2">物品</label>
+                            <input type="radio" id="attention_2" name="attention" value="forest">
+                            <label for="attention_2">森林</label>
                         </div>
                         <div class="radio-item">
-                            <input type="radio" id="attention_3" name="attention" value="food">
-                            <label for="attention_3">食物</label>
+                            <input type="radio" id="attention_3" name="attention" value="mountain">
+                            <label for="attention_3">山脉</label>
                         </div>
                         <div class="radio-item">
-                            <input type="radio" id="attention_4" name="attention" value="buildings">
-                            <label for="attention_4">建筑</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="attention_5" name="attention" value="landscape">
-                            <label for="attention_5">风景</label>
+                            <input type="radio" id="attention_4" name="attention" value="sky">
+                            <label for="attention_4">天空</label>
                         </div>
                     </div>
                 </div>
@@ -273,12 +235,12 @@
             </form>
         </div>
 
-        <!-- 添加休息屏幕 -->
+        <!-- 休息屏幕 -->
         <div id="rest-screen" class="rest-screen hidden" style="text-align: center; padding: 2rem; font-size: 1.5rem;">
             请稍作休息...
         </div>
 
-        <!-- 添加注意力检测后的休息屏幕 -->
+        <!-- 注意力检测后的休息屏幕 -->
         <div id="break-screen" class="rest-screen hidden" style="text-align: center; padding: 2rem; font-size: 1.5rem;">
             <p>请休息1分钟（您可以点击“跳过”按钮提前结束）</p>
             <p id="break-timer">60s</p>
