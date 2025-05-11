@@ -58,37 +58,13 @@
             // 添加检测设备类型的代码
             const deviceType = detectDeviceType();
 
-            // 从本地存储加载现有数据，如果没有则创建新对象
-            const userData = JSON.parse(localStorage.getItem('userData')) || {};
-
             // 记录实验开始时间和设备类型
             userData.experimentStartTime = new Date().toISOString();
             userData.deviceType = deviceType;
 
-            // 保存到localStorage
-            localStorage.setItem('userData', JSON.stringify(userData));
-
             // 修改跳转到基本信息页面
             window.location.href = 'Information-Collection.html';
         });
-
-
-        // 检测设备类型函数
-        function detectDeviceType() {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-
-            // 检测是否为移动设备
-            if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase())) {
-                // 进一步区分平板和手机
-                if (/ipad|tablet|playbook|silk/i.test(userAgent.toLowerCase()) ||
-                    (window.innerWidth >= 768 && window.innerHeight >= 768)) {
-                    return 'tablet';
-                }
-                return 'mobile';
-            }
-
-            return 'desktop';
-        }
     </script>
 </body>
 
